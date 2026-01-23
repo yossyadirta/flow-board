@@ -1,0 +1,33 @@
+"use client";
+
+import { Board } from "@/types/board";
+import { useAppState } from "./useAppState";
+import { generateId } from "@/lib/id";
+import { ADD_BOARD } from "../state/actions";
+
+export const useBoards = () => {
+  const { state, dispatch } = useAppState();
+
+  const boards = Object.values(state.boards);
+
+  const addBoard = (title: string, icon?: string) => {
+    const board: Board = {
+      id: generateId(),
+      title,
+      icon,
+      createdAt: Date.now(),
+    };
+
+    dispatch({
+      type: ADD_BOARD,
+      payload: {
+        board,
+      },
+    });
+  };
+
+  return {
+    boards,
+    addBoard,
+  };
+};
