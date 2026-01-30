@@ -1,10 +1,12 @@
 "use client";
 
-import { useReducer } from "react";
-import { rootReducer } from "../state/rootReducer";
-import { initialState } from "../state/initialState";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext";
 
 export const useAppState = () => {
-  const [state, dispatch] = useReducer(rootReducer, initialState);
-  return { state, dispatch };
+  const ctx = useContext(AppContext);
+  if (!ctx) {
+    throw new Error("useAppState must be used inside AppProvider");
+  }
+  return ctx;
 };
