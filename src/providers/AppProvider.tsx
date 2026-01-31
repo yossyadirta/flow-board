@@ -20,7 +20,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    console.log(state, "<< ini state bg");
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 

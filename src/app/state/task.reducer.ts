@@ -1,5 +1,11 @@
 import { AppState } from "@/types/state";
-import { Action, ADD_TASK, DELETE_TASK, UPDATE_TASK_STATUS } from "./actions";
+import {
+  Action,
+  ADD_TASK,
+  DELETE_TASK,
+  UPDATE_TASK,
+  UPDATE_TASK_STATUS,
+} from "./actions";
 
 export const taskReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
@@ -23,6 +29,18 @@ export const taskReducer = (state: AppState, action: Action): AppState => {
       return {
         ...state,
         tasks: newTasks,
+      };
+    }
+
+    case UPDATE_TASK: {
+      const { task } = action.payload;
+
+      return {
+        ...state,
+        tasks: {
+          ...state.tasks,
+          [task.id]: task,
+        },
       };
     }
 

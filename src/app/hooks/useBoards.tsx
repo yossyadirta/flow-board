@@ -3,7 +3,7 @@
 import { Board } from "@/types/board";
 import { useAppState } from "./useAppState";
 import { generateId } from "@/lib/id";
-import { ADD_BOARD } from "../state/actions";
+import { ADD_BOARD, DELETE_BOARD, UPDATE_BOARD } from "../state/actions";
 
 export const useBoards = () => {
   const { state, dispatch } = useAppState();
@@ -26,8 +26,28 @@ export const useBoards = () => {
     });
   };
 
+  const deleteBoard = (boardId: string) => {
+    dispatch({
+      type: DELETE_BOARD,
+      payload: {
+        boardId,
+      },
+    });
+  };
+
+  const updateBoard = (board: Board) => {
+    dispatch({
+      type: UPDATE_BOARD,
+      payload: {
+        board,
+      },
+    });
+  };
+
   return {
     boards,
     addBoard,
+    deleteBoard,
+    updateBoard,
   };
 };
