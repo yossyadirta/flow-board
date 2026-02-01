@@ -3,7 +3,8 @@ import {
   Action,
   ADD_TASK,
   DELETE_TASK,
-  UPDATE_TASK,
+  UPDATE_TASK_CONTENT,
+  UPDATE_TASK_ORDER,
   UPDATE_TASK_STATUS,
 } from "./actions";
 
@@ -32,7 +33,7 @@ export const taskReducer = (state: AppState, action: Action): AppState => {
       };
     }
 
-    case UPDATE_TASK: {
+    case UPDATE_TASK_CONTENT: {
       const { task } = action.payload;
 
       return {
@@ -40,6 +41,25 @@ export const taskReducer = (state: AppState, action: Action): AppState => {
         tasks: {
           ...state.tasks,
           [task.id]: task,
+        },
+      };
+    }
+
+    case UPDATE_TASK_ORDER: {
+      const { taskId, status, order } = action.payload;
+      const task = state.tasks[taskId];
+
+      if (!task) return state;
+
+      return {
+        ...state,
+        tasks: {
+          ...state.tasks,
+          [taskId]: {
+            ...task,
+            status,
+            order,
+          },
         },
       };
     }

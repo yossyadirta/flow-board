@@ -6,7 +6,8 @@ import { generateId } from "@/lib/id";
 import {
   ADD_TASK,
   DELETE_TASK,
-  UPDATE_TASK,
+  UPDATE_TASK_CONTENT,
+  UPDATE_TASK_ORDER,
   UPDATE_TASK_STATUS,
 } from "../state/actions";
 
@@ -33,11 +34,26 @@ export const useTasks = () => {
     });
   };
 
-  const updateTask = (task: Task) => {
+  const updateTaskContent = (task: Task) => {
     dispatch({
-      type: UPDATE_TASK,
+      type: UPDATE_TASK_CONTENT,
       payload: {
         task,
+      },
+    });
+  };
+
+  const updateTaskOrder = (
+    taskId: string,
+    order: number,
+    status: TaskStatus,
+  ) => {
+    dispatch({
+      type: UPDATE_TASK_ORDER,
+      payload: {
+        taskId,
+        order,
+        status,
       },
     });
   };
@@ -64,7 +80,8 @@ export const useTasks = () => {
   return {
     tasks,
     addTask,
-    updateTask,
+    updateTaskContent,
+    updateTaskOrder,
     updateTaskStatus,
     deleteTask,
   };

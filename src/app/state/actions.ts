@@ -7,7 +7,8 @@ export const UPDATE_BOARD = "UPDATE_BOARD";
 
 export const ADD_TASK = "ADD_TASK";
 export const DELETE_TASK = "DELETE_TASK";
-export const UPDATE_TASK = "UPDATE_TASK";
+export const UPDATE_TASK_CONTENT = "UPDATE_TASK_CONTENT";
+export const UPDATE_TASK_ORDER = "UPDATE_TASK_ORDER";
 export const UPDATE_TASK_STATUS = "UPDATE_TASK_STATUS";
 
 /* =========================
@@ -51,10 +52,19 @@ export type DeleteTaskAction = {
   };
 };
 
-export type UpdateTaskAction = {
-  type: typeof UPDATE_TASK;
+export type UpdateTaskContentAction = {
+  type: typeof UPDATE_TASK_CONTENT;
   payload: {
     task: Task;
+  };
+};
+
+export type UpdateTaskOrderAction = {
+  type: typeof UPDATE_TASK_ORDER;
+  payload: {
+    taskId: string;
+    order: number;
+    status: TaskStatus;
   };
 };
 
@@ -74,6 +84,7 @@ export type Action =
   | DeleteBoardAction
   | UpdateBoardAction
   | AddTaskAction
-  | UpdateTaskAction
+  | UpdateTaskContentAction
+  | UpdateTaskOrderAction
   | DeleteTaskAction
   | UpdateTaskStatusAction;
