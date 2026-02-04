@@ -3,7 +3,7 @@
 import { Board } from "@/types/board";
 import { useAppState } from "./useAppState";
 import { generateId } from "@/lib/id";
-import { ADD_BOARD, DELETE_BOARD, UPDATE_BOARD } from "../state/actions";
+import { ADD_BOARD, DELETE_BOARD, UPDATE_BOARD } from "@/state/actions";
 
 export const useBoards = () => {
   const { state, dispatch } = useAppState();

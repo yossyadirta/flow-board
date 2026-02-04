@@ -9,14 +9,19 @@ import {
   UPDATE_TASK_CONTENT,
   UPDATE_TASK_ORDER,
   UPDATE_TASK_STATUS,
-} from "../state/actions";
+} from "@/state/actions";
 
 export const useTasks = () => {
   const { state, dispatch } = useAppState();
 
   const tasks = Object.values(state.tasks);
 
-  const addTask = (boardId: string, title: string, status: TaskStatus) => {
+  const addTask = (
+    boardId: string,
+    title: string,
+    status: TaskStatus,
+    dueDate: number,
+  ) => {
     const task: Task = {
       id: generateId(),
       boardId,
@@ -24,6 +29,7 @@ export const useTasks = () => {
       status,
       order: 0,
       createdAt: Date.now(),
+      dueDate,
     };
 
     dispatch({

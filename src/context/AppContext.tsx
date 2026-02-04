@@ -2,7 +2,7 @@
 
 import { AppState } from "@/types/state";
 import { createContext } from "react";
-import { Action } from "../state/actions";
+import { Action } from "@/state/actions";
 
 export const AppContext = createContext<{
   state: AppState;
