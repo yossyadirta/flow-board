@@ -2,7 +2,6 @@
 
 import { Board } from "@/types/board";
 import { useAppState } from "./useAppState";
-import { generateId } from "@/lib/id";
 import { ADD_BOARD, DELETE_BOARD, UPDATE_BOARD } from "@/state/actions";
 
 export const useBoards = () => {
@@ -10,10 +9,10 @@ export const useBoards = () => {
 
   const boards = Object.values(state.boards);
 
-  const addBoard = (title: string, icon?: string) => {
+  const addBoard = (id: string, name: string, icon?: string) => {
     const board: Board = {
-      id: generateId(),
-      title,
+      id,
+      name,
       icon,
       createdAt: Date.now(),
     };
