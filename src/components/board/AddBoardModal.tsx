@@ -13,6 +13,7 @@ import { useBoards } from "@/hooks/useBoards";
 import { generateId } from "@/lib/id";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BoardIconId } from "./BoardIcons";
 
 type Props = {
   open: boolean;
@@ -26,7 +27,13 @@ export function AddBoardModal({ open, onClose }: Props) {
 
   const [canSubmit, setCanSubmit] = useState(false);
 
-  const handleSubmit = ({ name, icon }: { name: string; icon: string }) => {
+  const handleSubmit = ({
+    name,
+    icon,
+  }: {
+    name: string;
+    icon: BoardIconId;
+  }) => {
     const id = generateId();
     addBoard(id, name, icon);
     onClose();

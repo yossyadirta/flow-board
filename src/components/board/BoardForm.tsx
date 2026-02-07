@@ -33,7 +33,7 @@ export function BoardForm({
     mode: "onChange",
     defaultValues: {
       name: defaultValues?.name ?? "",
-      icon: defaultValues?.icon,
+      icon: defaultValues?.icon ?? "briefcase",
     },
   });
 
