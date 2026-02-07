@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,7 +51,7 @@ export function AddBoardModal({ open, onClose }: Props) {
         </DialogHeader>
         <BoardForm onSubmit={handleSubmit} onValidityChange={setCanSubmit} />
         <DialogFooter>
-          <DialogClose>
+          <DialogClose asChild>
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
