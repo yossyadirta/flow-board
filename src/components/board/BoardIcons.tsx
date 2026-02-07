@@ -58,3 +58,8 @@ export const BOARD_ICONS_MAP = {
 } as const;
 
 export type BoardIconId = keyof typeof BOARD_ICONS_MAP;
+
+export const BOARD_ICON_IDS = Object.keys(BOARD_ICONS_MAP) as [
+  BoardIconId,
+  ...BoardIconId[],
+];
