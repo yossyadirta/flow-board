@@ -7,14 +7,10 @@ import Link from "next/link";
 import { AddBoardModal } from "../board/AddBoardModal";
 
 const Sidebar = () => {
-  const { boards, deleteBoard } = useBoards();
+  const { boards } = useBoards();
   const { setTheme } = useTheme();
 
   const [isOpenAddBoardModal, setIsOpenAddBoardModal] = useState(false);
-
-  const handleDeleteBoard = (boardId: string) => {
-    deleteBoard(boardId);
-  };
 
   return (
     <>
@@ -22,22 +18,14 @@ const Sidebar = () => {
         <div>Flow Board</div>
         <div className="flex-1 overflow-auto p-2">
           <ul>
-            <li>
-              Boards
-              <ul>
-                {boards.map((item) => {
-                  return (
-                    <li key={item.id}>
-                      <Link href={`/board/${item.id}`}>{item.name}</Link>
-                      <button onClick={() => handleDeleteBoard(item.id)}>
-                        Delete Board
-                      </button>
-                    </li>
-                  );
-                })}
-                <li onClick={() => setIsOpenAddBoardModal(true)}>Add Board</li>
-              </ul>
-            </li>
+            {boards.map((item) => {
+              return (
+                <li key={`${item.id}_${item.createdAt}`}>
+                  <Link href={`/board/${item.id}`}>{item.name}</Link>
+                </li>
+              );
+            })}
+            <li onClick={() => setIsOpenAddBoardModal(true)}>Add Board</li>
           </ul>
         </div>
         <div className="flex flex-row justify-between">
