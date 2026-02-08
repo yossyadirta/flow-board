@@ -1,3 +1,5 @@
+"use client";
+
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BoardFormValues, boardSchema } from "@/schemas/board.schemas";
@@ -27,7 +29,7 @@ export function BoardForm({
     register,
     control,
     setValue,
-    formState: { isValid },
+    formState: { isValid, isDirty },
   } = useForm<BoardFormValues>({
     resolver: zodResolver(boardSchema),
     mode: "onChange",
@@ -38,8 +40,8 @@ export function BoardForm({
   });
 
   useEffect(() => {
-    onValidityChange?.(isValid);
-  }, [onValidityChange, isValid]);
+    onValidityChange?.(isDirty && isValid);
+  }, [onValidityChange, isDirty, isValid]);
 
   const selectedIcon = useWatch({
     control: control,
@@ -74,7 +76,12 @@ export function BoardForm({
                 <button
                   key={iconId}
                   type="button"
-                  onClick={() => setValue("icon", iconId)}
+                  onClick={() =>
+                    setValue("icon", iconId, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
                   aria-pressed={selected}
                   className="rounded-full focus:outline-none"
                 >

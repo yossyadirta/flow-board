@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTasks } from "@/hooks/useTasks";
 import { Task, TaskStatus } from "@/types/task";
 import { useBoards } from "@/hooks/useBoards";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 import { BOARD_ICONS_MAP } from "@/components/board/BoardIcons";
 import { BoardOption } from "@/components/board/BoardOption";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { useRouter } from "next/navigation";
+import { EditBoardModal } from "@/components/board/EditBoardModal";
+import { toast } from "sonner";
 
 const TASK_STATUS: {
   title: string;
@@ -46,9 +47,20 @@ const Page = () => {
   const { boards, deleteBoard } = useBoards();
 
   const [modalState, setModalState] = useState({
-    type: "delete",
+    type: "",
     isOpen: false,
+    variant: "",
   });
+
+  const [mounted, setMounted] = useState(false);
+
+  const handleUpdateMounted = useEffectEvent(() => {
+    setMounted(true);
+  });
+
+  useEffect(() => {
+    handleUpdateMounted();
+  }, []);
 
   const handleAddTask = (status: TaskStatus, dueDate: number) => {
     addTask(boardId, status, status, dueDate);
@@ -75,8 +87,12 @@ const Page = () => {
     const nextBoardId = getNextBoardId();
     deleteBoard(boardId);
 
-    if (nextBoardId) router.push(`/board/${nextBoardId}`);
-    else router.push("/board");
+    if (nextBoardId) {
+      router.push(`/board/${nextBoardId}`);
+    } else {
+      router.push("/board");
+    }
+    toast.success("Board has been deleted");
   };
 
   const handleUpdateTaskOrder = (
@@ -94,53 +110,63 @@ const Page = () => {
   const currentBoard = useMemo(() => {
     if (!boardId) return null;
 
-    const findBoard = boards.find((item) => item.id === boardId);
-    if (!findBoard) return null;
-
-    const { emoji, bg } = BOARD_ICONS_MAP[findBoard.icon];
-
-    return { ...findBoard, emoji, bg };
+    return boards.find((item) => item.id === boardId) ?? null;
   }, [boardId, boards]);
+
+  const { emoji, bg } = BOARD_ICONS_MAP[currentBoard?.icon ?? "briefcase"];
+
+  if (!mounted) {
+    return <div>Loading</div>;
+  }
 
   return (
     <div>
       <div className="flex justify-between align-top">
         <div className="flex flex-col gap-2">
           <Avatar
-            className={cn(
-              "h-10 w-10 flex items-center justify-center border transition-colors  ",
-            )}
-            style={{ backgroundColor: currentBoard?.bg }}
+            className="h-10 w-10 flex items-center justify-center border transition-colors"
+            style={{ backgroundColor: bg }}
           >
             <AvatarFallback className="bg-transparent text-lg">
-              {currentBoard?.emoji}
+              {emoji}
             </AvatarFallback>
           </Avatar>
-          <h1>{currentBoard?.name}</h1>
+          <h3 className="scroll-m-20 text-center text-xl font-extrabold tracking-tight text-balance">
+            {currentBoard?.name ?? ""}
+          </h3>
         </div>
         <div>
           <BoardOption
-            open={modalState.type === "delete" && modalState.isOpen}
+            open={modalState.variant === "delete" && modalState.isOpen}
             onOpenChange={() => {
-              if (modalState.type === "delete" && modalState.isOpen) {
+              if (modalState.variant === "delete" && modalState.isOpen) {
                 setModalState({
                   isOpen: false,
                   type: "",
+                  variant: "",
                 });
               } else {
                 setModalState({
                   isOpen: true,
-                  type: "delete",
+                  type: "board",
+                  variant: "delete",
                 });
               }
             }}
             onDelete={() => {
               setModalState({
                 isOpen: true,
-                type: "delete-confirmation",
+                type: "board",
+                variant: "delete-confirmation",
               });
             }}
-            onUpdate={() => {}}
+            onUpdate={() => {
+              setModalState({
+                isOpen: true,
+                type: "board",
+                variant: "edit",
+              });
+            }}
           />
         </div>
       </div>
@@ -194,16 +220,36 @@ const Page = () => {
         })}
       </div>
       <ConfirmDialog
-        open={modalState.type === "delete-confirmation" && modalState.isOpen}
+        open={modalState.variant === "delete-confirmation" && modalState.isOpen}
         onClose={() =>
           setModalState({
             isOpen: false,
             type: "",
+            variant: "",
           })
         }
-        title="Delete Board?"
-        description="This will permanently delete this board. Are you sure want to delete?"
-        onDelete={handleDeleteBoard}
+        title={`Delete ${modalState.type}?`}
+        description={`This will permanently delete this ${modalState.type}. Are you sure want to delete?`}
+        onDelete={() => {
+          if (modalState.type === "board") return handleDeleteBoard();
+          if (modalState.type === "task") return handleDeleteTask();
+          return null;
+        }}
+      />
+      <EditBoardModal
+        open={
+          modalState.variant === "edit" &&
+          modalState.isOpen &&
+          modalState.type === "board"
+        }
+        data={currentBoard}
+        onClose={() => {
+          setModalState({
+            isOpen: false,
+            type: "",
+            variant: "",
+          });
+        }}
       />
     </div>
   );

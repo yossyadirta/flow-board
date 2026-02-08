@@ -17,16 +17,16 @@ type Props = {
   onUpdate: () => void;
 };
 
-export function BoardOption({ open, onOpenChange, onDelete }: Props) {
+export function BoardOption({ open, onOpenChange, onDelete, onUpdate }: Props) {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant="outline">
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" align="end">
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={onUpdate}>
           <PencilIcon />
           Edit
         </DropdownMenuItem>
