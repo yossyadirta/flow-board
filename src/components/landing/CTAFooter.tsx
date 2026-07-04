@@ -36,7 +36,7 @@ export const CTAFooter = () => {
             <Button
               asChild
               size="lg"
-              className="group gap-2 px-10 py-6 text-base shadow-lg shadow-primary/20"
+              className="group gap-2 px-6 sm:px-10 py-4 sm:py-6 text-sm sm:text-base shadow-lg shadow-primary/20"
             >
               <Link href="/app" target="_blank" rel="noopener noreferrer">
                 Open Flowboard — It&apos;s Free
