@@ -282,8 +282,8 @@ export const HeroSection = () => {
           </Button>
         </motion.div>
 
-        <div className="relative mt-16 sm:mt-20 w-[90vw] sm:w-full max-w-5xl overflow-x-auto pb-4 sm:pb-0">
-          <div className="min-w-[700px] sm:min-w-0">
+        <div className="relative mt-16 sm:mt-20 w-[90vw] sm:w-full max-w-5xl overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
+          <div className="min-w-[850px] lg:min-w-0">
             <motion.div
               custom={2}
               variants={fadeUp}
