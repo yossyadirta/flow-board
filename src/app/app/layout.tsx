@@ -5,21 +5,12 @@ import { useBoards } from "@/hooks/useBoards";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { AddBoardModal } from "@/components/app/board/AddBoardModal";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarGroupLabel,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroupLabel, SidebarTrigger } from "@/components/ui/sidebar";
+import { GuestBanner } from "@/components/app/GuestBanner";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Clipboard, SearchIcon, SunMoon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { Clipboard, SearchIcon, SunMoon, LogOut } from "lucide-react";
 import BoardMenuItem from "@/components/app/BoardMenuItem";
 import {
   InputGroup,
@@ -34,6 +25,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const { boards } = useBoards();
   const { theme, setTheme } = useTheme();
@@ -67,7 +59,16 @@ export default function DashboardLayout({
 
   useEffect(() => {
     handleUpdateMounted();
-  }, []);
+
+    const checkAuth = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        await supabase.auth.signOut();
+        router.push("/login");
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   if (!isMounted) return null;
 
@@ -111,8 +112,19 @@ export default function DashboardLayout({
                 <button
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   className="p-2 rounded-lg hover:bg-accent cursor-pointer"
+                  title="Toggle Theme"
                 >
                   <SunMoon />
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    router.push("/login");
+                  }}
+                  className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 cursor-pointer mb-2 transition-colors text-sm"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
                 </button>
               </div>
             </div>
@@ -193,6 +205,7 @@ export default function DashboardLayout({
           </div>
         </Sidebar>
         <SidebarInset className="h-screen overflow-hidden flex flex-col flex-1">
+          <GuestBanner />
           <header className="flex h-14 shrink-0 items-center justify-between border-b px-4 md:hidden">
             <Link href="/app" className="flex items-center gap-2">
               <Image src="/logo.svg" alt="Flowboard" width={28} height={28} />
