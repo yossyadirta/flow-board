@@ -62,6 +62,7 @@ type Props = {
   modalState: ModalState;
   setModalState: (data: ModalState) => void;
   boardId: string;
+  isLoading: boolean;
 };
 
 const BoardColumns = ({
@@ -72,9 +73,9 @@ const BoardColumns = ({
   setModalState,
   boardId,
   actions,
+  isLoading,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { state } = useAppState();
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
@@ -195,7 +196,7 @@ const BoardColumns = ({
         )}
       </div>
       <div className="flex-1 overflow-hidden">
-        {state.isFetching || state.isMutating ? (
+        {isLoading ? (
           <>
             {derived.view === "kanban" && <KanbanSkeleton />}
             {derived.view === "table" && <TableSkeleton />}
