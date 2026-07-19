@@ -9,7 +9,7 @@ export const useTasks = () => {
   const queryClient = useQueryClient();
 
   // Query to fetch all tasks accessible to the user
-  const { data: mappedTasks = [] } = useQuery<Task[]>({
+  const { data: mappedTasks = [], isLoading } = useQuery<Task[]>({
     queryKey: ["tasks"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -289,5 +289,6 @@ export const useTasks = () => {
     updateTaskContent,
     updateTaskDragAndDrop,
     deleteTask,
+    isLoading,
   };
 };

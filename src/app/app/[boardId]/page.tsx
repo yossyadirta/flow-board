@@ -27,7 +27,7 @@ const Page = () => {
 
   const boardId = currentBoard?.id as string;
 
-  const { tasks } = useTasks();
+  const { tasks, isLoading } = useTasks();
   const actions = useBoardActions({ boardId });
   const dnd = useBoardDnd({ boardId });
   const derived = useBoardDerived({ boardId });
@@ -71,6 +71,7 @@ const Page = () => {
         setModalState={setModalState}
         boardId={boardId}
         actions={actions}
+        isLoading={isLoading}
       />
       <BoardModals
         modalState={modalState}
