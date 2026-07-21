@@ -4,28 +4,37 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { Info } from "lucide-react";
 
 export function GuestBanner() {
   const [isGuest, setIsGuest] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.is_anonymous) {
-        setIsGuest(true);
-      }
+      setIsGuest(user?.is_anonymous ?? false);
     };
     checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      checkUser();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignUp = async () => {
-    router.push("/login?link_identity=true");
+    setAuthModalOpen(true);
   };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    localStorage.clear(); // Clear any local caches to ensure a fresh state
     router.push("/");
   };
 
@@ -52,6 +61,7 @@ export function GuestBanner() {
           Save Progress
         </Button>
       </div>
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 }
