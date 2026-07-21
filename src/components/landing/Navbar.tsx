@@ -6,7 +6,11 @@ import { ArrowRight, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
-export const Navbar = () => {
+interface NavbarProps {
+  onLaunchApp?: (e: React.MouseEvent) => void;
+}
+
+export const Navbar = ({ onLaunchApp }: NavbarProps) => {
   const [scrolled, setScrolled] = useState(false);
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -29,10 +33,11 @@ export const Navbar = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-4 transition-all md:px-12 lg:px-24 bg-background/80 backdrop-blur-xl ${scrolled
-        ? "border-b border-border/50 shadow-sm"
-        : "border-transparent"
-        }`}
+      className={`fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-4 transition-all duration-300 md:px-12 lg:px-24 ${
+        scrolled
+          ? "bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
+          : "bg-transparent border-transparent"
+      }`}
     >
       <div className="flex items-center gap-2.5">
         <Image src="/logo.svg" alt="Flowboard" width={24} height={24} />
@@ -72,11 +77,9 @@ export const Navbar = () => {
             <Moon className="size-4.5" />
           )}
         </Button>
-        <Button asChild size="sm" className="gap-1.5 cursor-pointer">
-          <Link href="/app" target="_blank" rel="noopener noreferrer">
-            Launch App
-            <ArrowRight className="size-3.5" />
-          </Link>
+        <Button size="sm" className="gap-1.5 cursor-pointer" onClick={onLaunchApp}>
+          Get Started for Free
+          <ArrowRight className="size-3.5" />
         </Button>
       </div>
     </motion.nav>
