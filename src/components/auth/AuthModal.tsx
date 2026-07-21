@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldSeparator } from "@/components/ui/field";
+import { generateAvatarUrl } from "@/lib/avatar";
 
 interface AuthModalProps {
   open: boolean;
@@ -61,27 +62,57 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     setIsLoading(true);
     try {
-      if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/app`,
-          },
-        });
-        if (error) throw error;
+      const { data: { user } } = await supabase.auth.getUser();
+      const isAnonymous = user?.is_anonymous;
 
-        if (data.session) {
-          toast.success("Account created! Welcome to Flowboard.", {
+      if (isSignUp) {
+        if (isAnonymous) {
+          const { error } = await supabase.auth.updateUser({ email, password });
+          if (error) throw error;
+          
+          // Generate and save avatar for upgraded account
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            name: email.split("@")[0],
+            avatar_url: generateAvatarUrl(email),
+            updated_at: new Date().toISOString()
+          });
+
+          toast.success("Account created successfully! Your progress is saved.", {
             position: "top-center",
           });
           handleOpenChange(false);
-          router.push("/app");
+          // Wait briefly then reload or let the app continue
         } else {
-          toast.success("Account created successfully! Check your email for confirmation.", {
-            position: "top-center",
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=/app`,
+            },
           });
-          setIsSignUp(false); // Switch to sign in for convenience
+          if (error) throw error;
+
+          if (data.session) {
+            // Generate and save avatar for new account (if auto-confirmed)
+            await supabase.from("profiles").upsert({
+              id: data.session.user.id,
+              name: email.split("@")[0],
+              avatar_url: generateAvatarUrl(email),
+              updated_at: new Date().toISOString()
+            });
+
+            toast.success("Account created! Welcome to Flowboard.", {
+              position: "top-center",
+            });
+            handleOpenChange(false);
+            router.push("/app");
+          } else {
+            toast.success("Account created successfully! Check your email for confirmation.", {
+              position: "top-center",
+            });
+            setIsSignUp(false);
+          }
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -105,13 +136,24 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/app`,
-        },
-      });
-      if (error) throw error;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.is_anonymous) {
+        const { error } = await supabase.auth.linkIdentity({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback?next=/app`,
+          },
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback?next=/app`,
+          },
+        });
+        if (error) throw error;
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to login with Google");
       setIsGoogleLoading(false);

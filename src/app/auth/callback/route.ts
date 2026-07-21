@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { generateAvatarUrl } from "@/lib/avatar";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -32,8 +33,35 @@ export async function GET(request: Request) {
         },
       }
     );
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data?.session) {
+      const user = data.session.user;
+      
+      // Auto-sync Profile to Database
+      if (user) {
+        const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "";
+        const email = user.email || "";
+        // ALWAYS use generated avatar
+        const avatar_url = generateAvatarUrl(email);
+        
+        // Read first to avoid overwriting user's manual changes if they already exist
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("avatar_url, name")
+          .eq("id", user.id)
+          .single();
+
+        // Only sync if the DB is empty
+        if (!existingProfile?.avatar_url || !existingProfile?.name) {
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            name: existingProfile?.name || name,
+            avatar_url: existingProfile?.avatar_url || avatar_url,
+            updated_at: new Date().toISOString()
+          });
+        }
+      }
+      
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
