@@ -32,10 +32,41 @@ import { ProjectStatusList } from "@/components/app/ProjectStatusList";
 import { UpcomingDeadlinesCard } from "@/components/app/UpcomingDeadlinesCard";
 import { Board } from "@/types/board";
 import { DashboardSkeleton } from "@/components/app/skeletons/DashboardSkeleton";
+import { supabase } from "@/lib/supabase";
 
 export default function HomeDashboard() {
   const router = useRouter();
   const { state } = useAppState();
+
+  const [userEmail, setUserEmail] = React.useState<string | null>(null);
+  const [userName, setUserName] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        setUserEmail(data.user.email ?? null);
+        setUserName(data.user.user_metadata?.full_name ?? null);
+      }
+    };
+
+    fetchUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setUserEmail(session.user.email ?? null);
+          setUserName(session.user.user_metadata?.full_name ?? null);
+        }
+      }
+    );
+
+    window.addEventListener("profile-updated", fetchUser);
+    return () => {
+      authListener.subscription.unsubscribe();
+      window.removeEventListener("profile-updated", fetchUser);
+    };
+  }, []);
 
   const {
     boards,
@@ -62,7 +93,7 @@ export default function HomeDashboard() {
   if (!hasBoards) {
     return (
       <>
-        <EmptyState setIsOpenAddBoardModal={setIsOpenAddBoardModal} />
+        <EmptyState setIsOpenAddBoardModal={setIsOpenAddBoardModal} userName={userName} />
         <AddBoardModal
           open={isOpenAddBoardModal}
           onClose={() => setIsOpenAddBoardModal(false)}
@@ -77,7 +108,7 @@ export default function HomeDashboard() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Welcome back! 👋
+              Welcome back{userName ? <span>, {userName}</span> : ""}! 👋
             </h1>
             <p className="text-sm md:text-base text-muted-foreground mt-1">
               Track and manage all your personal projects in one place.

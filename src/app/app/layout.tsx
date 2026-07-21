@@ -11,6 +11,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Clipboard, SearchIcon, SunMoon, LogOut } from "lucide-react";
+import { ProfileDropdown } from "@/components/app/ProfileDropdown";
 import BoardMenuItem from "@/components/app/BoardMenuItem";
 import {
   InputGroup,
@@ -32,6 +33,7 @@ export default function DashboardLayout({
 
   const [isMounted, setIsMounted] = useState(false);
   const [isOpenAddBoardModal, setIsOpenAddBoardModal] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   const keyword = search.toLowerCase().trim();
@@ -65,9 +67,27 @@ export default function DashboardLayout({
       if (error || !data.user) {
         await supabase.auth.signOut();
         router.push("/");
+      } else {
+        setUserEmail(data.user.email ?? null);
       }
     };
     checkAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setUserEmail(session.user.email ?? null);
+        }
+      }
+    );
+    
+    const handleProfileUpdate = () => checkAuth();
+    window.addEventListener("profile-updated", handleProfileUpdate);
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+      window.removeEventListener("profile-updated", handleProfileUpdate);
+    };
   }, [router]);
 
   if (!isMounted) return null;
@@ -116,16 +136,9 @@ export default function DashboardLayout({
                 >
                   <SunMoon />
                 </button>
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    router.push("/");
-                  }}
-                  className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 cursor-pointer mb-2 transition-colors text-sm"
-                  title="Logout"
-                >
-                  <LogOut size={18} />
-                </button>
+                <div className="mb-2">
+                  <ProfileDropdown userEmail={userEmail} />
+                </div>
               </div>
             </div>
 

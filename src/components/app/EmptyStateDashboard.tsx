@@ -11,15 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EmptyStateProps {
   setIsOpenAddBoardModal: (isOpen: boolean) => void;
+  userName?: string | null;
 }
 
-export function EmptyState({ setIsOpenAddBoardModal }: EmptyStateProps) {
+export function EmptyState({ setIsOpenAddBoardModal, userName }: EmptyStateProps) {
   return (
     <div className="flex flex-col gap-6 w-full min-h-screen xl:h-screen xl:overflow-hidden bg-slate-50/50 dark:bg-background/95 p-5 pl-0 xs:pl-5">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-            Welcome back! 👋
+            Welcome back{userName ? <span>, {userName}</span> : ""}! 👋
           </h1>
           <p className="text-sm md:text-base text-muted-foreground mt-1">
             Track and manage all your personal projects in one place.
