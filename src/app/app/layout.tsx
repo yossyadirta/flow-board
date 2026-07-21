@@ -64,7 +64,7 @@ export default function DashboardLayout({
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
         await supabase.auth.signOut();
-        router.push("/login");
+        router.push("/");
       }
     };
     checkAuth();
@@ -119,7 +119,7 @@ export default function DashboardLayout({
                 <button
                   onClick={async () => {
                     await supabase.auth.signOut();
-                    router.push("/login");
+                    router.push("/");
                   }}
                   className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 cursor-pointer mb-2 transition-colors text-sm"
                   title="Logout"

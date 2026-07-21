@@ -184,7 +184,11 @@ const FloatingCard = ({
   );
 };
 
-export const HeroSection = () => {
+interface HeroSectionProps {
+  onLaunchApp?: (e: React.MouseEvent) => void;
+}
+
+export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [elSize, setElSize] = React.useState({ w: 0, h: 0 });
   const cursorX = useMotionValue(-1);
@@ -271,14 +275,12 @@ export const HeroSection = () => {
           animate="visible"
         >
           <Button
-            asChild
             size="lg"
-            className="gap-2 px-6 sm:px-8 text-xs sm:text-sm shadow-lg shadow-primary/20"
+            className="gap-2 px-6 sm:px-8 text-xs sm:text-sm shadow-lg shadow-primary/20 cursor-pointer"
+            onClick={onLaunchApp}
           >
-            <Link href="/app" target="_blank" rel="noopener noreferrer">
-              Get Started
-              <ArrowRight className="size-4" />
-            </Link>
+            Get Started
+            <ArrowRight className="size-4" />
           </Button>
         </motion.div>
 

@@ -26,7 +26,7 @@ export function GuestBanner() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/");
   };
 
   if (!isGuest) return null;

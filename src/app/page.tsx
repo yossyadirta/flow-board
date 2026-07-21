@@ -1,26 +1,42 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { DemoSection } from "@/components/landing/DemoSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { TechSection } from "@/components/landing/TechSection";
 import { CTAFooter } from "@/components/landing/CTAFooter";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 const LandingPage = () => {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLaunchApp = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      router.push("/app");
+    } else {
+      setAuthModalOpen(true);
+    }
+  };
+
   return (
-    <ScrollArea className="h-screen w-full">
+    <div className="min-h-screen w-full">
       <main className="relative w-full overflow-x-hidden bg-background text-foreground">
-        <Navbar />
-        <HeroSection />
+        <Navbar onLaunchApp={handleLaunchApp} />
+        <HeroSection onLaunchApp={handleLaunchApp} />
         <DemoSection />
         <FeaturesSection />
         <TechSection />
         <CTAFooter />
       </main>
-    </ScrollArea>
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+    </div>
   );
 };
 
