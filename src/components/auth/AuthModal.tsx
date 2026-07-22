@@ -176,6 +176,30 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
   };
 
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address first");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+      });
+      if (error) throw error;
+      toast.success("Check your email for the password reset link!", {
+        position: "top-center",
+        duration: 5000,
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send reset email");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md border border-slate-200/50 dark:border-border/50 bg-white dark:bg-zinc-950 shadow-xl p-8 rounded-2xl">
@@ -273,9 +297,21 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               </div>
 
               <div className="relative">
-                <label className="absolute left-3 top-2 text-[10px] font-semibold tracking-wider text-muted-foreground z-10">
-                  PASSWORD
-                </label>
+                <div className="absolute left-3 top-2 flex w-[calc(100%-1.5rem)] items-center justify-between z-10">
+                  <label className="text-[10px] font-semibold tracking-wider text-muted-foreground">
+                    PASSWORD
+                  </label>
+                  {!isSignUp && (
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-[10px] font-semibold tracking-wider text-primary hover:underline cursor-pointer"
+                      disabled={isLoading}
+                    >
+                      FORGOT PASSWORD?
+                    </button>
+                  )}
+                </div>
                 <Input
                   type="password"
                   placeholder="••••••••"
