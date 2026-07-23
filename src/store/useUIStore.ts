@@ -7,11 +7,13 @@ interface UIStore {
   setLastBoardId: (id: string) => void;
   clearLastBoardId: () => void;
   setHasSeenOnboarding: () => void;
+  setOnboardingStepIndex: (index: number) => void;
 }
 
 const DEFAULT_UI: UIState = {
   lastBoardId: "",
   hasSeenOnboarding: false,
+  onboardingStepIndex: 0,
 };
 
 export const useUIStore = create<UIStore>()(
@@ -28,6 +30,8 @@ export const useUIStore = create<UIStore>()(
         }),
       setHasSeenOnboarding: () =>
         set((state) => ({ ui: { ...state.ui, hasSeenOnboarding: true } })),
+      setOnboardingStepIndex: (index: number) =>
+        set((state) => ({ ui: { ...state.ui, onboardingStepIndex: index } })),
     }),
     {
       name: "flowboard:ui",

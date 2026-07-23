@@ -19,6 +19,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { OnboardingProvider } from "@/providers/OnboardingProvider";
 
 export default function DashboardLayout({
   children,
@@ -93,6 +94,7 @@ export default function DashboardLayout({
   if (!isMounted) return null;
 
   return (
+    <OnboardingProvider>
     <>
       <SidebarProvider
         style={{ "--sidebar-width": "360px" } as React.CSSProperties}
@@ -237,5 +239,6 @@ export default function DashboardLayout({
         onClose={() => setIsOpenAddBoardModal(false)}
       />
     </>
+    </OnboardingProvider>
   );
 }
