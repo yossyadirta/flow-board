@@ -8,6 +8,8 @@ import { OnboardingContextProvider } from "@/context/OnboardingContext";
 
 import { useTheme } from "next-themes";
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 // Dynamically import Joyride to avoid SSR issues
 const Joyride = dynamic(
   () => import("react-joyride").then((mod) => ({ default: mod.Joyride })),
@@ -17,8 +19,9 @@ const Joyride = dynamic(
 function OnboardingJoyride() {
   const { run, stepIndex, steps, handleJoyrideEvent } = useOnboarding();
   const { resolvedTheme } = useTheme();
+  const isMobile = useIsMobile();
 
-  if (!run) return null;
+  if (!run || isMobile) return null;
 
   return (
     <Joyride
