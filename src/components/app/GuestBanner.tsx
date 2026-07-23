@@ -43,7 +43,7 @@ export function GuestBanner() {
   if (!isGuest || isOnboarding) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 max-w-sm w-full bg-background border border-primary/20 p-4 rounded-xl shadow-2xl z-50 flex flex-col gap-3 animate-in slide-in-from-bottom-5">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-full sm:max-w-sm bg-background border border-primary/20 p-4 rounded-xl shadow-2xl z-50 flex flex-col gap-3 animate-in slide-in-from-bottom-5">
       <div className="flex items-start gap-3">
         <div className="bg-primary/10 p-2 rounded-full text-primary shrink-0">
           <Info size={18} />
