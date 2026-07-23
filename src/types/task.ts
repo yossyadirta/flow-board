@@ -12,8 +12,9 @@ export type Task = {
   status: TaskStatus;
   boardId: string;
   order: number;
-  createdAt: number;
-  dueDate?: Date;
+  createdAt: number | string;
+  updatedAt?: number | string;
+  dueDate?: Date | string;
   cover?: TaskCover;
   description?: string;
 };
