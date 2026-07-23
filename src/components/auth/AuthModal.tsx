@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { FieldSeparator } from "@/components/ui/field";
 import { generateAvatarUrl } from "@/lib/avatar";
+import { useUIStore } from "@/store/useUIStore";
 
 interface AuthModalProps {
   open: boolean;
@@ -29,6 +30,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+
+  const hasSeenOnboarding = useUIStore((state) => state.ui.hasSeenOnboarding);
 
   const resetState = () => {
     setStep(1);
@@ -71,12 +74,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           if (error) throw error;
           
           // Generate and save avatar for upgraded account
-          await supabase.from("profiles").upsert({
+          const profileData: Record<string, unknown> = {
             id: user.id,
             name: email.split("@")[0],
             avatar_url: generateAvatarUrl(email),
-            updated_at: new Date().toISOString()
-          });
+            updated_at: new Date().toISOString(),
+          };
+
+          // Sync onboarding flag from localStorage to Supabase
+          if (hasSeenOnboarding) {
+            profileData.has_seen_onboarding = true;
+          }
+
+          await supabase.from("profiles").upsert(profileData);
 
           toast.success("Account created successfully! Your progress is saved.", {
             position: "top-center",

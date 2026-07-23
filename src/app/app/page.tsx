@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { AddBoardModal } from "@/components/app/board/AddBoardModal";
 import { useBoardDashboardData } from "@/hooks/app/useBoardDashboardData";
 import { useAppState } from "@/hooks/useAppState";
+import { useOnboardingContext } from "@/context/OnboardingContext";
 import { EmptyState } from "@/components/app/EmptyStateDashboard";
 import { RecentActivitiesCard } from "@/components/app/RecentActivityCard";
 import { ProjectStatusList } from "@/components/app/ProjectStatusList";
@@ -37,6 +38,7 @@ import { supabase } from "@/lib/supabase";
 export default function HomeDashboard() {
   const router = useRouter();
   const { state } = useAppState();
+  const { signalEvent } = useOnboardingContext();
 
   const [userEmail, setUserEmail] = React.useState<string | null>(null);
   const [userName, setUserName] = React.useState<string | null>(null);
@@ -115,8 +117,12 @@ export default function HomeDashboard() {
             </p>
           </div>
           <Button
+            data-onboarding="create-board-btn"
             className="shadow-md hover:shadow-lg transition-all rounded-full px-6 w-full sm:w-auto shrink-0 cursor-pointer"
-            onClick={() => setIsOpenAddBoardModal(true)}
+            onClick={() => {
+              setIsOpenAddBoardModal(true);
+              signalEvent("create-board-clicked");
+            }}
           >
             <Plus className="h-4 w-4 md:h-5 md:w-5" />
             Create New Board

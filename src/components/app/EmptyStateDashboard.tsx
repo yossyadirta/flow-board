@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useOnboardingContext } from "@/context/OnboardingContext";
 
 interface EmptyStateProps {
   setIsOpenAddBoardModal: (isOpen: boolean) => void;
@@ -15,6 +16,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ setIsOpenAddBoardModal, userName }: EmptyStateProps) {
+  const { signalEvent } = useOnboardingContext();
+
   return (
     <div className="flex flex-col gap-6 w-full min-h-screen xl:h-screen xl:overflow-hidden bg-slate-50/50 dark:bg-background/95 p-5 pl-0 xs:pl-5">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0">
@@ -42,8 +45,12 @@ export function EmptyState({ setIsOpenAddBoardModal, userName }: EmptyStateProps
               tracking your progress.
             </p>
             <Button
+              data-onboarding="create-board-btn"
               className="shadow-md hover:shadow-lg transition-all rounded-full px-6 w-full sm:w-auto shrink-0 cursor-pointer"
-              onClick={() => setIsOpenAddBoardModal(true)}
+              onClick={() => {
+                setIsOpenAddBoardModal(true);
+                signalEvent("create-board-clicked");
+              }}
             >
               <Plus className="h-5 w-5" />
               New Board

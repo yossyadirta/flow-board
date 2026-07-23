@@ -12,6 +12,7 @@ import { useBoardDerived } from "@/hooks/app/useBoardDerived";
 import BoardHeader from "@/components/app/BoardHeader";
 import BoardView from "@/components/app/BoardView";
 import BoardModals from "@/components/app/BoardModals";
+import { useOnboardingContext } from "@/context/OnboardingContext";
 
 const Page = () => {
   const params = useParams<{ boardId: string }>();
@@ -28,8 +29,9 @@ const Page = () => {
   const boardId = currentBoard?.id as string;
 
   const { tasks, isLoading } = useTasks();
+  const { signalEvent } = useOnboardingContext();
   const actions = useBoardActions({ boardId });
-  const dnd = useBoardDnd({ boardId });
+  const dnd = useBoardDnd({ boardId, onboardingSignal: signalEvent });
   const derived = useBoardDerived({ boardId });
 
   const [modalState, setModalState] = useState<ModalState>({

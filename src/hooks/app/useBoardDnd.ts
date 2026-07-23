@@ -5,12 +5,14 @@ import { Task, TaskStatus } from "@/types/task";
 import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useState } from "react";
+import { OnboardingEvent } from "@/context/OnboardingContext";
 
 type Props = {
   boardId: string;
+  onboardingSignal?: (event: OnboardingEvent) => void;
 };
 
-export const useBoardDnd = ({ boardId }: Props) => {
+export const useBoardDnd = ({ boardId, onboardingSignal }: Props) => {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const { tasks, mappedTasks, deleteTask, updateTaskDragAndDrop } = useTasks();
@@ -131,6 +133,19 @@ export const useBoardDnd = ({ boardId }: Props) => {
     }
 
     commitTasks(newTasks);
+
+    // Signal onboarding events for drag & drop
+    if (onboardingSignal && activeTask) {
+      const finalTask = newTasks.find((t) => t.id === activeId);
+      if (finalTask && finalTask.status !== activeTask.status) {
+        if (finalTask.status === "in-progress") {
+          onboardingSignal("task-moved-to-inprogress");
+        } else if (finalTask.status === "done") {
+          onboardingSignal("task-moved-to-done");
+        }
+      }
+    }
+
     setActiveId(null);
   };
 

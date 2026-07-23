@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { Info } from "lucide-react";
+import { useOnboardingContext } from "@/context/OnboardingContext";
 
 export function GuestBanner() {
   const [isGuest, setIsGuest] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const router = useRouter();
+  const { isOnboarding } = useOnboardingContext();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -38,7 +40,7 @@ export function GuestBanner() {
     router.push("/");
   };
 
-  if (!isGuest) return null;
+  if (!isGuest || isOnboarding) return null;
 
   return (
     <div className="fixed bottom-6 right-6 max-w-sm w-full bg-background border border-primary/20 p-4 rounded-xl shadow-2xl z-50 flex flex-col gap-3 animate-in slide-in-from-bottom-5">
