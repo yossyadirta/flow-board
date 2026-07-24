@@ -15,12 +15,28 @@ export default defineConfig({
   test: {
     projects: [
       {
+        resolve: {
+          alias: {
+            '@': path.resolve(dirname, './src'),
+          },
+        },
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          setupFiles: ['./vitest.setup.ts'],
+          include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+        },
+      },
+      {
         extends: true,
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
           storybookTest({ configDir: path.join(dirname, '.storybook') }),
         ],
+        optimizeDeps: {
+          include: ['@testing-library/user-event', '@testing-library/dom', 'aria-query'],
+        },
         test: {
           name: 'storybook',
           browser: {
