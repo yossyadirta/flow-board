@@ -36,6 +36,7 @@ export const useBoards = () => {
         createdAt: new Date(board.created_at).getTime(),
         isFavorite: board.is_favorite,
         taskCounter: board.task_counter,
+        owner_id: board.owner_id,
       }));
     },
   });

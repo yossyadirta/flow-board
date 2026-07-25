@@ -8,4 +8,5 @@ export type Board = {
   createdAt: number | string;
   isFavorite: boolean;
   taskCounter: number;
+  owner_id?: string;
 };
