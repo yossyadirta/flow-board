@@ -17,9 +17,10 @@ interface SettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userEmail: string | null;
+  userProfile?: { name: string, bg_color: string } | null;
 }
 
-export function SettingsModal({ open, onOpenChange, userEmail }: SettingsModalProps) {
+export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: SettingsModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
 
@@ -79,7 +80,8 @@ export function SettingsModal({ open, onOpenChange, userEmail }: SettingsModalPr
             {/* Read-only Avatar Display */}
             {userEmail ? (
               <div 
-                className="w-20 h-20 rounded-2xl bg-primary/20 text-primary flex items-center justify-center font-bold text-3xl uppercase border-2 border-primary/30"
+                className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-3xl uppercase text-white shadow-sm"
+                style={{ backgroundColor: userProfile?.bg_color || "#9CA3AF" }}
                 title={userEmail}
               >
                 {userEmail.charAt(0)}
