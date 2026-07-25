@@ -31,6 +31,7 @@ export const Default: Story = {
     derived: {
       emoji: '🚀',
       currentBoard: mockBoard,
+      recentTasks: [],
     },
     mounted: true,
     modalState: { type: 'option-board' },
@@ -43,6 +44,7 @@ export const Favorited: Story = {
     derived: {
       emoji: '⭐',
       currentBoard: { ...mockBoard, name: 'VIP Client Project' },
+      recentTasks: [],
     },
     mounted: true,
     modalState: { type: 'delete-board' },

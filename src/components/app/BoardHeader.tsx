@@ -4,11 +4,14 @@ import { Board } from "@/types/board";
 import { OptionDropdown } from "@/components/ui/option-dropdown";
 import { ModalState } from "@/types/state";
 import { Star } from "lucide-react";
+import { BoardActivitySheet } from "@/components/app/board/BoardActivitySheet";
+import { Task } from "@/types/task";
 
 type Props = {
   derived: {
     emoji: string;
     currentBoard: Board | null;
+    recentTasks: Task[];
   };
   mounted: boolean;
   modalState: ModalState;
@@ -39,7 +42,8 @@ const BoardHeader = ({
             {derived.currentBoard?.name ?? ""}
           </h3>
         </div>
-        <div className="flex">
+        <div className="flex items-center gap-2">
+          <BoardActivitySheet recentTasks={derived.recentTasks} />
           <button
             onClick={() => {
               if (derived.currentBoard?.id) {

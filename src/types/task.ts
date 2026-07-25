@@ -17,4 +17,9 @@ export type Task = {
   dueDate?: Date | string;
   cover?: TaskCover;
   description?: string;
+  author?: {
+    id: string;
+    name: string;
+    bg_color: string;
+  };
 };

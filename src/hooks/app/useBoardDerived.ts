@@ -101,6 +101,12 @@ export const useBoardDerived = ({ boardId }: Props) => {
           ).length || 0 / totalTask) * 100,
         );
 
+  const recentTasks = useMemo(() => {
+    return mappedTasks
+      .filter((task) => task.boardId === boardId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [mappedTasks, boardId]);
+
   return {
     visibleTasks,
     currentBoard,
@@ -113,5 +119,6 @@ export const useBoardDerived = ({ boardId }: Props) => {
     search,
     filter,
     view,
+    recentTasks,
   };
 };

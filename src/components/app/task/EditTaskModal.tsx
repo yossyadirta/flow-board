@@ -67,7 +67,7 @@ export function EditTaskModal({ open, onClose, data }: Props) {
           defaultValues={{
             status: data?.status,
             title: data?.title,
-            dueDate: data?.dueDate,
+            dueDate: data?.dueDate ? new Date(data.dueDate) : undefined,
             description: data?.description,
             cover: data?.cover,
           }}

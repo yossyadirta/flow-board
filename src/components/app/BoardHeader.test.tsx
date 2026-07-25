@@ -18,7 +18,7 @@ describe('BoardHeader', () => {
   it('renders board name and emoji', () => {
     render(
       <BoardHeader
-        derived={{ emoji: '🚀', currentBoard: mockBoard }}
+        derived={{ emoji: '🚀', currentBoard: mockBoard, recentTasks: [] }}
         mounted={true}
         modalState={{ type: null }}
         setModalState={vi.fn()}
@@ -38,7 +38,7 @@ describe('BoardHeader', () => {
 
     const { container } = render(
       <BoardHeader
-        derived={{ emoji: '🚀', currentBoard: mockBoard }}
+        derived={{ emoji: '🚀', currentBoard: mockBoard, recentTasks: [] }}
         mounted={true}
         modalState={{ type: null }}
         setModalState={vi.fn()}
@@ -50,7 +50,7 @@ describe('BoardHeader', () => {
 
     // Find the button (it contains the Star icon, usually the first button before the dropdown)
     const buttons = container.querySelectorAll('button');
-    const starButton = buttons[0]; // Assuming it's the first button
+    const starButton = buttons[1]; // Activity button is 0, Star is 1
 
     await user.click(starButton);
 

@@ -17,7 +17,7 @@ export const useTasks = () => {
 
       const { data, error } = await supabase
         .from("tasks")
-        .select("*")
+        .select("*, profiles(name, bg_color)")
         .order("order", { ascending: true });
 
       if (error) throw error;
@@ -33,6 +33,11 @@ export const useTasks = () => {
         dueDate: task.due_date ? new Date(task.due_date) : undefined,
         cover: task.cover ? (task.cover as TaskCover) : { type: "none" },
         description: task.description || undefined,
+        author: task.profiles && !Array.isArray(task.profiles) ? {
+          id: task.user_id,
+          name: task.profiles.name,
+          bg_color: task.profiles.bg_color,
+        } : undefined,
       }));
     },
   });
@@ -76,7 +81,7 @@ export const useTasks = () => {
           key,
           order,
         })
-        .select()
+        .select("*, profiles(name, bg_color)")
         .single();
 
       if (error) throw error;
@@ -124,7 +129,7 @@ export const useTasks = () => {
         .update({
           title: task.title,
           status: task.status,
-          due_date: task.dueDate ? task.dueDate.toISOString() : null,
+          due_date: task.dueDate ? new Date(task.dueDate).toISOString() : null,
           description: task.description || null,
           cover: task.cover || { type: "none" },
           order: task.order,
@@ -161,7 +166,7 @@ export const useTasks = () => {
         board_id: task.boardId,
         title: task.title,
         status: task.status,
-        due_date: task.dueDate ? task.dueDate.toISOString() : null,
+        due_date: task.dueDate ? new Date(task.dueDate).toISOString() : null,
         description: task.description || null,
         cover: task.cover || { type: "none" },
         order: task.order,
