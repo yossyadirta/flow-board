@@ -54,7 +54,7 @@ export function ProfileDropdown({
             onClick={async () => {
               await supabase.auth.signOut();
               localStorage.clear();
-              router.push("/");
+              window.location.href = "/";
             }}
             className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-950/30"
           >

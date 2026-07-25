@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useEffectEvent, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTasks } from "@/hooks/useTasks";
 import { useBoards } from "@/hooks/useBoards";
 
@@ -18,7 +18,8 @@ const Page = () => {
   const params = useParams<{ boardId: string }>();
   const boardKey = params.boardId;
 
-  const { boards } = useBoards();
+  const router = useRouter();
+  const { boards, isLoading: isBoardsLoading } = useBoards();
 
   const currentBoard = useMemo(() => {
     if (!boardKey) return null;
@@ -49,9 +50,17 @@ const Page = () => {
     handleUpdateMounted();
   }, []);
 
-  if (!mounted) {
+  useEffect(() => {
+    if (!isBoardsLoading && !currentBoard && mounted) {
+      router.push("/app");
+    }
+  }, [isBoardsLoading, currentBoard, mounted, router]);
+
+  if (!mounted || isBoardsLoading) {
     return <div>Loading</div>;
   }
+
+  if (!currentBoard) return null;
 
   return (
     <div className="h-full flex flex-col overflow-hidden p-4 md:p-6">
