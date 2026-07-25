@@ -23,6 +23,12 @@ interface SettingsModalProps {
 export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: SettingsModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
+  const [bgColor, setBgColor] = useState("#3B82F6");
+
+  const PREDEFINED_COLORS = [
+    "#EF4444", "#F97316", "#F59E0B", "#10B981", 
+    "#3B82F6", "#6366F1", "#8B5CF6", "#EC4899"
+  ];
 
   useEffect(() => {
     if (open) {
@@ -36,8 +42,16 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.user_metadata?.full_name) {
         setName(user.user_metadata.full_name);
+      } else if (userProfile?.name) {
+        setName(userProfile.name);
       } else {
         setName("");
+      }
+      
+      if (userProfile?.bg_color) {
+        setBgColor(userProfile.bg_color);
+      } else {
+        setBgColor(PREDEFINED_COLORS[Math.floor(Math.random() * PREDEFINED_COLORS.length)]);
       }
     } catch (error) {
       console.error(error);
@@ -50,11 +64,23 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not found");
+
+      // Update the profiles table
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ name: name, bg_color: bgColor })
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      // Update auth metadata for redundancy
+      const { error: authError } = await supabase.auth.updateUser({
         data: { full_name: name },
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
       toast.success("Profile updated successfully!");
       window.dispatchEvent(new Event("profile-updated"));
       onOpenChange(false);
@@ -80,11 +106,11 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
             {/* Read-only Avatar Display */}
             {userEmail ? (
               <div 
-                className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-3xl uppercase text-white shadow-sm"
-                style={{ backgroundColor: userProfile?.bg_color || "#9CA3AF" }}
-                title={userEmail}
+                className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-3xl uppercase text-white shadow-sm transition-colors"
+                style={{ backgroundColor: bgColor }}
+                title={name || userEmail}
               >
-                {userEmail.charAt(0)}
+                {(name || userEmail).charAt(0)}
               </div>
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-muted-foreground border-2 border-slate-200 dark:border-zinc-800">
@@ -106,12 +132,37 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
                   <User size={16} />
                 </div>
                 <Input
-                  placeholder="Your Name"
+                  placeholder={userEmail ? "Your Name" : "Guest User (Cannot Edit)"}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="pl-9 h-11 bg-slate-50 dark:bg-zinc-900/50"
-                  disabled={isLoading}
+                  disabled={isLoading || !userEmail}
                 />
+              </div>
+              {!userEmail && (
+                <p className="text-xs text-amber-600 dark:text-amber-500 mt-2 font-medium">
+                  Guest users cannot update their profile. Please log in with Google to enable editing.
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                Avatar Color
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                {PREDEFINED_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    disabled={isLoading || !userEmail}
+                    className={`w-8 h-8 rounded-full border-2 transition-transform cursor-pointer ${
+                      bgColor === color ? "border-foreground scale-110" : "border-transparent hover:scale-110"
+                    } ${!userEmail ? "opacity-50 cursor-not-allowed" : ""}`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setBgColor(color)}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -119,7 +170,7 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
           <Button
             type="submit"
             className="w-full h-11 bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-medium"
-            disabled={isLoading}
+            disabled={isLoading || !userEmail}
           >
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
