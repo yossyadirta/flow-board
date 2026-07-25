@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { generateAvatarUrl } from "@/lib/avatar";
+import { generateProfileColor } from "@/lib/avatar";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -42,22 +42,22 @@ export async function GET(request: Request) {
         const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "";
         const email = user.email || "";
         // ALWAYS use generated avatar
-        const avatar_url = generateAvatarUrl(email);
+        const bg_color = generateProfileColor(email);
         
         // Read first to avoid overwriting user's manual changes if they already exist
         const { data: existingProfile } = await supabase
           .from("profiles")
-          .select("avatar_url, name")
+          .select("bg_color, name")
           .eq("id", user.id)
           .single();
 
         // Only sync if the DB is empty
-        if (!existingProfile?.avatar_url || !existingProfile?.name) {
+        if (!existingProfile?.bg_color || !existingProfile?.name) {
           await supabase.from("profiles").upsert({
             id: user.id,
-            name: existingProfile?.name || name,
-            avatar_url: existingProfile?.avatar_url || avatar_url,
-            updated_at: new Date().toISOString()
+            name: existingProfile?.name || email.split("@")[0],
+            bg_color: existingProfile?.bg_color || bg_color,
+            updated_at: new Date().toISOString(),
           });
         }
       }

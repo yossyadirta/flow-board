@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { SettingsModal } from "@/components/app/SettingsModal";
@@ -14,7 +14,13 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 
-export function ProfileDropdown({ userEmail }: { userEmail: string | null }) {
+export function ProfileDropdown({ 
+  userEmail,
+  userProfile 
+}: { 
+  userEmail: string | null;
+  userProfile?: { name: string, bg_color: string } | null;
+}) {
   const router = useRouter();
   const [isOpenSettingsModal, setIsOpenSettingsModal] = useState(false);
 
@@ -23,10 +29,10 @@ export function ProfileDropdown({ userEmail }: { userEmail: string | null }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="w-10 h-10 rounded-md bg-primary/20 text-primary flex items-center justify-center font-bold text-lg uppercase hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer shrink-0 shadow-sm"
-            title={userEmail || "Guest User"}
+            className="w-10 h-10 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0"
+            title="Settings"
           >
-            {userEmail ? userEmail.charAt(0) : <User className="w-5 h-5" />}
+            <Settings className="w-5 h-5" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" side="right" className="w-48 ml-2">
@@ -62,6 +68,7 @@ export function ProfileDropdown({ userEmail }: { userEmail: string | null }) {
         open={isOpenSettingsModal}
         onOpenChange={setIsOpenSettingsModal}
         userEmail={userEmail}
+        userProfile={userProfile}
       />
     </>
   );

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useEffectEvent, useState } from "react";
 import { useBoards } from "@/hooks/useBoards";
+import { generateProfileColor } from "@/lib/avatar";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { AddBoardModal } from "@/components/app/board/AddBoardModal";
@@ -35,6 +36,7 @@ export default function DashboardLayout({
   const [isMounted, setIsMounted] = useState(false);
   const [isOpenAddBoardModal, setIsOpenAddBoardModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<{name: string, bg_color: string} | null>(null);
   const [search, setSearch] = useState("");
 
   const keyword = search.toLowerCase().trim();
@@ -70,6 +72,23 @@ export default function DashboardLayout({
         router.push("/");
       } else {
         setUserEmail(data.user.email ?? null);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("name, bg_color")
+          .eq("id", data.user.id)
+          .single();
+          
+        let finalBgColor = profile?.bg_color;
+        
+        // Auto-fix for existing users who haven't re-logged in
+        if (profile && !profile.bg_color && data.user.email) {
+          finalBgColor = generateProfileColor(data.user.email);
+          await supabase.from("profiles").update({ bg_color: finalBgColor }).eq("id", data.user.id);
+        }
+        
+        if (profile) {
+          setUserProfile({ name: profile.name, bg_color: finalBgColor });
+        }
       }
     };
     checkAuth();
@@ -133,13 +152,13 @@ export default function DashboardLayout({
               <div className="w-16 flex flex-col items-center gap-4">
                 <button
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="p-2 rounded-lg hover:bg-accent cursor-pointer"
+                  className="w-10 h-10 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0"
                   title="Toggle Theme"
                 >
-                  <SunMoon />
+                  <SunMoon className="w-5 h-5" />
                 </button>
                 <div className="mb-2">
-                  <ProfileDropdown userEmail={userEmail} />
+                  <ProfileDropdown userEmail={userEmail} userProfile={userProfile} />
                 </div>
               </div>
             </div>

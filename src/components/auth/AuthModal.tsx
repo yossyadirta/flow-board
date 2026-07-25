@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldSeparator } from "@/components/ui/field";
-import { generateAvatarUrl } from "@/lib/avatar";
+import { generateProfileColor } from "@/lib/avatar";
 import { useUIStore } from "@/store/useUIStore";
 
 interface AuthModalProps {
@@ -77,7 +77,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           const profileData: Record<string, unknown> = {
             id: user.id,
             name: email.split("@")[0],
-            avatar_url: generateAvatarUrl(email),
+            bg_color: generateProfileColor(email),
             updated_at: new Date().toISOString(),
           };
 
@@ -108,7 +108,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             await supabase.from("profiles").upsert({
               id: data.session.user.id,
               name: email.split("@")[0],
-              avatar_url: generateAvatarUrl(email),
+              bg_color: generateProfileColor(email),
               updated_at: new Date().toISOString()
             });
 
