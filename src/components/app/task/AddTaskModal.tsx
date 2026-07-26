@@ -35,12 +35,14 @@ export function AddTaskModal({ open, onClose, status, boardId }: Props) {
     dueDate,
     description,
     cover,
+    assigneeId,
   }: {
     title: string;
     status: TaskStatus;
     dueDate?: Date;
     description?: string;
     cover?: { type: "none" | "color" | "image"; value?: string };
+    assigneeId?: string | null;
   }) => {
     const newTask = {
       boardId,
@@ -49,6 +51,7 @@ export function AddTaskModal({ open, onClose, status, boardId }: Props) {
       dueDate,
       description,
       cover: cover as TaskCover | undefined,
+      assigneeId,
     };
     addTask(newTask);
     onClose();
@@ -66,6 +69,7 @@ export function AddTaskModal({ open, onClose, status, boardId }: Props) {
           <DialogTitle className="sr-only">Add Task</DialogTitle>
         </DialogHeader>
         <TaskForm
+          boardId={boardId}
           onSubmit={handleSubmit}
           onValidityChange={setCanSubmit}
           defaultValues={{

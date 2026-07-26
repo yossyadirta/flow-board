@@ -5,6 +5,7 @@ import { Board } from "@/types/board";
 import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export const useTasks = (boardId?: string) => {
   const queryClient = useQueryClient();
@@ -12,11 +13,14 @@ export const useTasks = (boardId?: string) => {
   // Setup Real-time Sync for Tasks
   useEffect(() => {
     // Subscribe if we are in a board or globally
-    const channel = supabase.channel('public:tasks')
+    // Use a unique channel name to prevent "cannot add callbacks after subscribe" in React Strict Mode
+    const channelName = `tasks-changes-${boardId || 'all'}-${Math.random()}`;
+    const channel = supabase.channel(channelName)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'tasks' },
         (payload) => {
+          console.log("Realtime event received:", payload);
           // Invalidate the tasks query to trigger a background refetch
           // This creates the "magic" auto-updating UI
           queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -38,7 +42,7 @@ export const useTasks = (boardId?: string) => {
 
       const { data, error } = await supabase
         .from("tasks")
-        .select("*, profiles(name, bg_color)")
+        .select("*, author:profiles!user_id(name, bg_color), assignee:profiles!assignee_id(name, bg_color)")
         .order("order", { ascending: true });
 
       if (error) throw error;
@@ -54,10 +58,16 @@ export const useTasks = (boardId?: string) => {
         dueDate: task.due_date ? new Date(task.due_date) : undefined,
         cover: task.cover ? (task.cover as TaskCover) : { type: "none" },
         description: task.description || undefined,
-        author: task.profiles && !Array.isArray(task.profiles) ? {
+        author: task.author && !Array.isArray(task.author) ? {
           id: task.user_id,
-          name: task.profiles.name,
-          bg_color: task.profiles.bg_color,
+          name: task.author.name,
+          bg_color: task.author.bg_color,
+        } : undefined,
+        assigneeId: task.assignee_id || undefined,
+        assignee: task.assignee && !Array.isArray(task.assignee) ? {
+          id: task.assignee_id,
+          name: task.assignee.name,
+          bg_color: task.assignee.bg_color,
         } : undefined,
       }));
     },
@@ -80,6 +90,7 @@ export const useTasks = (boardId?: string) => {
       cover,
       key,
       order,
+      assigneeId,
     }: {
       boardId: string;
       title: string;
@@ -89,6 +100,7 @@ export const useTasks = (boardId?: string) => {
       cover?: TaskCover;
       key: string;
       order: number;
+      assigneeId?: string | null;
     }) => {
       const { data, error } = await supabase
         .from("tasks")
@@ -101,8 +113,9 @@ export const useTasks = (boardId?: string) => {
           cover: cover || { type: "none" },
           key,
           order,
+          assignee_id: assigneeId || null,
         })
-        .select("*, profiles(name, bg_color)")
+        .select("*, author:profiles!user_id(name, bg_color), assignee:profiles!assignee_id(name, bg_color)")
         .single();
 
       if (error) throw error;
@@ -123,6 +136,7 @@ export const useTasks = (boardId?: string) => {
         key: newTask.key,
         order: newTask.order,
         createdAt: Date.now(),
+        assigneeId: newTask.assigneeId || undefined,
       };
 
       queryClient.setQueryData<Task[]>(["tasks"], (old) => {
@@ -154,6 +168,7 @@ export const useTasks = (boardId?: string) => {
           description: task.description || null,
           cover: task.cover || { type: "none" },
           order: task.order,
+          assignee_id: task.assigneeId || null,
         })
         .eq("id", task.id);
 
@@ -182,20 +197,27 @@ export const useTasks = (boardId?: string) => {
   // Update Task Drag and Drop Mutation (optimistic update for bulk tasks reordering)
   const updateTaskDragAndDropMutation = useMutation({
     mutationFn: async (updatedTasksRecord: Record<string, Task>) => {
-      const payload = Object.values(updatedTasksRecord).map((task) => ({
-        id: task.id,
-        board_id: task.boardId,
-        title: task.title,
-        status: task.status,
-        due_date: task.dueDate ? new Date(task.dueDate).toISOString() : null,
-        description: task.description || null,
-        cover: task.cover || { type: "none" },
-        order: task.order,
-        key: task.key,
-      }));
+      const tasksToUpdate = Object.values(updatedTasksRecord);
 
-      const { error } = await supabase.from("tasks").upsert(payload);
-      if (error) throw error;
+      const updatePromises = tasksToUpdate.map((task) =>
+        supabase.from("tasks").update({
+          board_id: task.boardId,
+          title: task.title,
+          status: task.status,
+          due_date: task.dueDate ? new Date(task.dueDate).toISOString() : null,
+          description: task.description || null,
+          cover: task.cover || { type: "none" },
+          order: task.order,
+          assignee_id: task.assigneeId || null,
+        }).eq("id", task.id)
+      );
+
+      const results = await Promise.all(updatePromises);
+      const errors = results.filter(r => r.error).map(r => r.error);
+
+      if (errors.length > 0) {
+        throw errors[0];
+      }
     },
     onMutate: async (updatedTasksRecord) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
@@ -212,6 +234,7 @@ export const useTasks = (boardId?: string) => {
       return { previousTasks };
     },
     onError: (err, variables, context) => {
+      toast.error(`Drag and Drop Failed: ${err.message}`);
       if (context?.previousTasks) {
         queryClient.setQueryData(["tasks"], context.previousTasks);
       }
@@ -244,6 +267,7 @@ export const useTasks = (boardId?: string) => {
     dueDate,
     description,
     cover,
+    assigneeId,
   }: {
     boardId: string;
     title: string;
@@ -251,6 +275,7 @@ export const useTasks = (boardId?: string) => {
     dueDate?: Date;
     description?: string;
     cover?: TaskCover;
+    assigneeId?: string | null;
   }) => {
     // Get board details to construct key
     const boards = queryClient.getQueryData<Board[]>(["boards"]) || [];
@@ -293,6 +318,7 @@ export const useTasks = (boardId?: string) => {
       cover,
       key,
       order: newOrder,
+      assigneeId,
     });
   };
 

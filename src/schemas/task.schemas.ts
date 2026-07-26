@@ -13,6 +13,7 @@ export const taskSchema = z.object({
   status: taskStatusSchema,
   dueDate: z.date().optional(),
   description: z.string().optional(),
+  assigneeId: z.string().nullable().optional(),
   cover: z
     .object({
       type: z.enum(["none", "color", "image"]),

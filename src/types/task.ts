@@ -22,4 +22,10 @@ export type Task = {
     name: string;
     bg_color: string;
   };
+  assigneeId?: string;
+  assignee?: {
+    id: string;
+    name: string;
+    bg_color: string;
+  };
 };

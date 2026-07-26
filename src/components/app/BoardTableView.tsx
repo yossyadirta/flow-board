@@ -54,6 +54,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useIsOverflow } from "@/hooks/useIsOverflow";
 import { ModalState } from "@/types/state";
 
@@ -145,6 +146,27 @@ export const BoardTableView = ({ tasks, setModalState }: Props) => {
 
           return (
             <Badge className={`font-medium ${badgeClass}`}>{status}</Badge>
+          );
+        },
+      },
+      {
+        accessorKey: "assignee",
+        header: () => <span className="ml-4">Assignee</span>,
+        cell: ({ row }) => {
+          const assignee = row.original.assignee;
+          if (!assignee) return <span className="text-muted-foreground px-4">-</span>;
+          return (
+            <div className="flex items-center gap-2 px-4">
+              <Avatar className="w-6 h-6 border border-background shadow-sm shrink-0">
+                <AvatarFallback 
+                  className="text-white text-[10px]"
+                  style={{ backgroundColor: assignee.bg_color || "#9CA3AF" }}
+                >
+                  {assignee.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm truncate">{assignee.name}</span>
+            </div>
           );
         },
       },

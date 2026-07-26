@@ -36,6 +36,8 @@ import { formatDueDate } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import Image from "next/image";
+import { useBoardMembers } from "@/hooks/useBoardMembers";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const COLORS = [
   "#ff6565",
@@ -63,9 +65,10 @@ type Props = {
   onSubmit: (values: TaskFormValues) => void;
   defaultValues?: Partial<TaskFormValues>;
   onValidityChange?: (isValid: boolean) => void;
+  boardId: string;
 };
 
-export function TaskForm({ onSubmit, defaultValues, onValidityChange }: Props) {
+export function TaskForm({ onSubmit, defaultValues, onValidityChange, boardId }: Props) {
   const {
     handleSubmit,
     register,
@@ -81,9 +84,12 @@ export function TaskForm({ onSubmit, defaultValues, onValidityChange }: Props) {
         ? new Date(defaultValues.dueDate)
         : undefined,
       description: defaultValues?.description ?? "",
+      assigneeId: defaultValues?.assigneeId ?? undefined,
       cover: defaultValues?.cover ?? { type: "none" },
     },
   });
+
+  const { members } = useBoardMembers(boardId);
 
   useEffect(() => {
     onValidityChange?.(isDirty && isValid);
@@ -140,6 +146,50 @@ export function TaskForm({ onSubmit, defaultValues, onValidityChange }: Props) {
             className="w-full rounded-md border px-3 py-2 text-sm resize-none"
           />
         </Field>
+        <Controller
+          name="assigneeId"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <Label htmlFor="assigneeId">Assign To</Label>
+              <Select
+                name={field.name}
+                value={field.value || "unassigned"}
+                onValueChange={(val) => field.onChange(val === "unassigned" ? null : val)}
+              >
+                <SelectTrigger
+                  id="assigneeId"
+                  className="w-full"
+                  aria-invalid={fieldState.invalid}
+                >
+                  <SelectValue placeholder="Unassigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="unassigned" className="text-muted-foreground italic">
+                      Unassigned
+                    </SelectItem>
+                    {members.map((member) => (
+                      <SelectItem key={member.user_id} value={member.user_id}>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="w-5 h-5">
+                            <AvatarFallback
+                              className="text-[8px] text-white"
+                              style={{ backgroundColor: member.profiles?.bg_color || "#9CA3AF" }}
+                            >
+                              {(member.profiles?.name || member.profiles?.email || "?").charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{member.profiles?.name || member.profiles?.email}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          )}
+        />
         <Controller
           name="dueDate"
           control={control}
@@ -223,9 +273,8 @@ export function TaskForm({ onSubmit, defaultValues, onValidityChange }: Props) {
                         onClick={() =>
                           field.onChange({ type: "color", value: c })
                         }
-                        className={`w-full h-8 rounded-md border ${
-                          cover.value === c ? "ring-2 ring-primary" : ""
-                        }`}
+                        className={`w-full h-8 rounded-md border ${cover.value === c ? "ring-2 ring-primary" : ""
+                          }`}
                         style={{ backgroundColor: c }}
                       />
                     ))}
@@ -270,9 +319,8 @@ function CoverImageItem({
     <button
       type="button"
       onClick={onClick}
-      className={`relative rounded-md overflow-hidden border ${
-        selected ? "ring-2 ring-primary" : ""
-      }`}
+      className={`relative rounded-md overflow-hidden border ${selected ? "ring-2 ring-primary" : ""
+        }`}
     >
       <div className="relative w-full h-16">
         {loading && <div className="absolute inset-0 bg-muted animate-pulse" />}
@@ -281,9 +329,8 @@ function CoverImageItem({
           src={img}
           alt="cover"
           fill
-          className={`object-cover transition-opacity ${
-            loading ? "opacity-0" : "opacity-100"
-          }`}
+          className={`object-cover transition-opacity ${loading ? "opacity-0" : "opacity-100"
+            }`}
           sizes="120px"
           priority
           onLoadingComplete={() => setLoading(false)}

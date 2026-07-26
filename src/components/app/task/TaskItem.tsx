@@ -17,8 +17,10 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  TooltipProvider,
 } from "@/components/ui/tooltip";
 import { useIsOverflow } from "@/hooks/useIsOverflow";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type Props = {
   data: Task;
@@ -117,33 +119,59 @@ const TaskItem = ({
 
       <div className="p-4 pt-3 flex flex-col gap-2.5">
         <CardHeader className="p-0 gap-0">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <CardTitle
-                className="flex-1 min-w-0 truncate font-medium text-sm leading-tight pr-6"
-                ref={textRef}
-              >
-                {data?.title}
-              </CardTitle>
-            </TooltipTrigger>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CardTitle
+                  className="flex-1 min-w-0 truncate font-medium text-sm leading-tight pr-6"
+                  ref={textRef}
+                >
+                  {data?.title}
+                </CardTitle>
+              </TooltipTrigger>
 
-            {isOverflow && (
-              <TooltipContent side="right">{data?.title}</TooltipContent>
-            )}
-          </Tooltip>
+              {isOverflow && (
+                <TooltipContent side="right">{data?.title}</TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </CardHeader>
 
-        {(data?.description || data?.dueDate) && (
-          <CardDescription className="text-xs flex items-center gap-1">
-            {data?.dueDate && (
-              <span className="flex flex-row gap-1 items-center">
-                <Clock className="h-3 w-3" />
-                {formatDueDate(data?.dueDate)}
-              </span>
+        <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center">
+            {(data?.description || data?.dueDate) && (
+              <CardDescription className="text-xs flex items-center gap-2">
+                {data?.dueDate && (
+                  <span className="flex flex-row gap-1 items-center">
+                    <Clock className="h-3 w-3" />
+                    {formatDueDate(data?.dueDate)}
+                  </span>
+                )}
+                {data?.description && <TextAlignStart className="h-3 w-3" />}
+              </CardDescription>
             )}
-            {data?.description && <TextAlignStart className="h-3 w-3" />}
-          </CardDescription>
-        )}
+          </div>
+          
+          {data.assignee && (
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Avatar className="w-5 h-5 border border-background shadow-sm ml-2 shrink-0">
+                    <AvatarFallback 
+                      className="text-white text-[8px]"
+                      style={{ backgroundColor: data.assignee.bg_color || "#9CA3AF" }}
+                    >
+                      {data.assignee.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span className="text-xs">Assigned to {data.assignee.name}</span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </div>
     </Card>
   );

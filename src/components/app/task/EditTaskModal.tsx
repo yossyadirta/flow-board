@@ -35,6 +35,7 @@ export function EditTaskModal({ open, onClose, data }: Props) {
     dueDate,
     description,
     cover,
+    assigneeId,
   }: TaskFormValues) => {
     if (!data?.boardId) return;
 
@@ -45,6 +46,7 @@ export function EditTaskModal({ open, onClose, data }: Props) {
       dueDate,
       description,
       cover,
+      assigneeId,
     };
     updateTaskContent(updatedTask as Task);
     onClose();
@@ -62,6 +64,7 @@ export function EditTaskModal({ open, onClose, data }: Props) {
           <DialogTitle className="sr-only">Edit Task</DialogTitle>
         </DialogHeader>
         <TaskForm
+          boardId={data?.boardId || ""}
           onSubmit={handleSubmit}
           onValidityChange={setCanSubmit}
           defaultValues={{
@@ -70,6 +73,7 @@ export function EditTaskModal({ open, onClose, data }: Props) {
             dueDate: data?.dueDate ? new Date(data.dueDate) : undefined,
             description: data?.description,
             cover: data?.cover,
+            assigneeId: data?.assigneeId,
           }}
         />
         <DialogFooter>

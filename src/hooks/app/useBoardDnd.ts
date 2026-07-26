@@ -28,8 +28,15 @@ export const useBoardDnd = ({ boardId, onboardingSignal }: Props) => {
   };
 
   const commitTasks = (array: Task[]) => {
+    const changedTasks = array.filter(task => {
+      const original = mappedTasks.find(t => t.id === task.id);
+      return !original || original.order !== task.order || original.status !== task.status;
+    });
+
+    if (changedTasks.length === 0) return;
+
     const newTasks: Record<string, Task> = {};
-    array.forEach((item) => {
+    changedTasks.forEach((item) => {
       newTasks[item.id] = item;
     });
     updateTaskDragAndDrop(newTasks);
