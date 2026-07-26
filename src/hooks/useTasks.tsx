@@ -4,9 +4,30 @@ import { Task, TaskCover, TaskStatus } from "@/types/task";
 import { Board } from "@/types/board";
 import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
-export const useTasks = () => {
+export const useTasks = (boardId?: string) => {
   const queryClient = useQueryClient();
+
+  // Setup Real-time Sync for Tasks
+  useEffect(() => {
+    // Subscribe if we are in a board or globally
+    const channel = supabase.channel('public:tasks')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        (payload) => {
+          // Invalidate the tasks query to trigger a background refetch
+          // This creates the "magic" auto-updating UI
+          queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Query to fetch all tasks accessible to the user
   const { data: mappedTasks = [], isLoading } = useQuery<Task[]>({
@@ -234,7 +255,7 @@ export const useTasks = () => {
     // Get board details to construct key
     const boards = queryClient.getQueryData<Board[]>(["boards"]) || [];
     let board = boards.find((b) => b.id === boardId);
-    
+
     if (!board) {
       const { data } = await supabase.from("boards").select("*").eq("id", boardId).single();
       if (data) {
@@ -249,7 +270,7 @@ export const useTasks = () => {
         };
       }
     }
-    
+
     if (!board) return;
 
     const sameColumnTasks = mappedTasks.filter(

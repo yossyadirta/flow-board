@@ -7,6 +7,7 @@ import { Star, UserPlus } from "lucide-react";
 import { BoardActivitySheet } from "@/components/app/board/BoardActivitySheet";
 import { ShareBoardModal } from "@/components/app/board/ShareBoardModal";
 import { useBoardMembers } from "@/hooks/useBoardMembers";
+import { usePresence } from "@/hooks/usePresence";
 import { supabase } from "@/lib/supabase";
 import { Task } from "@/types/task";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -45,9 +46,19 @@ const BoardHeader = ({
   }, []);
 
   const { members } = useBoardMembers(derived.currentBoard?.id || "");
+  const { onlineUsers } = usePresence(derived.currentBoard?.id || "", currentUserId);
+
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.user_id === currentUserId) return -1;
+    if (b.user_id === currentUserId) return 1;
+    if (a.role === "owner" && b.role !== "owner") return -1;
+    if (b.role === "owner" && a.role !== "owner") return 1;
+    return 0;
+  });
+
   const maxDisplay = 4;
-  const displayMembers = members.slice(0, maxDisplay);
-  const extraMembers = Math.max(0, members.length - maxDisplay);
+  const displayMembers = sortedMembers.slice(0, maxDisplay);
+  const extraMembers = Math.max(0, sortedMembers.length - maxDisplay);
 
   return (
     <div className="pt-6 pb-4">
@@ -73,14 +84,13 @@ const BoardHeader = ({
             className="rounded-md transition-colors cursor-pointer"
           >
             <Star
-              className={`h-4 w-4 transition-colors ${
-                isFavorite
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-muted-foreground"
-              }`}
+              className={`h-4 w-4 transition-colors ${isFavorite
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-muted-foreground"
+                }`}
             />
           </button>
-          
+
           <div className="h-4 w-px bg-slate-200 dark:bg-zinc-800 mx-1"></div>
 
           <TooltipProvider delayDuration={100}>
@@ -90,26 +100,29 @@ const BoardHeader = ({
                 const displayName = member.profiles?.name || "";
                 const displayEmail = member.profiles?.email || "";
                 const avatarInitial = displayName ? displayName.charAt(0).toUpperCase() : displayEmail.charAt(0).toUpperCase() || "?";
-                
+
                 return (
                   <Tooltip key={member.user_id}>
                     <TooltipTrigger asChild>
-                      <Avatar 
-                        className="w-7 h-7 border-2 border-background shadow-sm relative cursor-pointer"
-                        style={{ zIndex: 10 - i }}
-                      >
-                        <AvatarFallback 
-                          className="text-white text-[10px]"
-                          style={{ backgroundColor: member.profiles?.bg_color || "#9CA3AF" }}
+                      <div className="relative" style={{ zIndex: 10 - i }}>
+                        <Avatar
+                          className="w-7 h-7 border-2 border-background shadow-sm cursor-pointer"
                         >
-                          {avatarInitial}
-                        </AvatarFallback>
-                      </Avatar>
+                          <AvatarFallback
+                            className="text-white text-[10px]"
+                            style={{ backgroundColor: member.profiles?.bg_color || "#9CA3AF" }}
+                          >
+                            {avatarInitial}
+                          </AvatarFallback>
+                        </Avatar>
+                        {onlineUsers.has(member.user_id) && (
+                          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full" />
+                        )}
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent className="flex flex-col gap-0.5">
                       <span className="font-semibold">{displayName || displayEmail} {isMe && "(You)"}</span>
                       {displayEmail && <span className="text-xs text-muted-foreground">{displayEmail}</span>}
-                      <span className="text-[10px] text-muted-foreground uppercase mt-0.5">{member.role}</span>
                     </TooltipContent>
                   </Tooltip>
                 );
@@ -117,7 +130,7 @@ const BoardHeader = ({
               {extraMembers > 0 && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div 
+                    <div
                       className="w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 border-2 border-background flex items-center justify-center text-[10px] font-medium text-muted-foreground relative cursor-pointer"
                       style={{ zIndex: 0 }}
                     >
@@ -180,7 +193,7 @@ const BoardHeader = ({
           />
         </div>
       </div>
-      
+
       {derived.currentBoard && (
         <ShareBoardModal
           open={showShareModal}
