@@ -29,8 +29,9 @@ export function AddBoardModal({ open, onClose }: Props) {
   const { signalEvent } = useOnboardingContext();
 
   const [canSubmit, setCanSubmit] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = ({
+  const handleSubmit = async ({
     name,
     icon,
     key,
@@ -39,10 +40,15 @@ export function AddBoardModal({ open, onClose }: Props) {
     icon: BoardIconId;
     key: string;
   }) => {
-    addBoard({ key, name, icon });
-    onClose();
-    signalEvent("board-created");
-    router.push(`/app/${key}`);
+    setIsSubmitting(true);
+    try {
+      await addBoard({ key, name, icon });
+      onClose();
+      signalEvent("board-created");
+      router.push(`/app/${key}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,8 +69,8 @@ export function AddBoardModal({ open, onClose }: Props) {
               Cancel
             </Button>
           </DialogClose>
-          <Button type="submit" form="board-form" disabled={!canSubmit}>
-            Create
+          <Button type="submit" form="board-form" disabled={!canSubmit || isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

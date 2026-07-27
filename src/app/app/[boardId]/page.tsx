@@ -19,7 +19,7 @@ const Page = () => {
   const boardKey = params.boardId;
 
   const router = useRouter();
-  const { boards, isLoading: isBoardsLoading } = useBoards();
+  const { boards, isLoading: isBoardsLoading, isFetching: isBoardsFetching } = useBoards();
 
   const currentBoard = useMemo(() => {
     if (!boardKey) return null;
@@ -51,10 +51,10 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    if (!isBoardsLoading && !currentBoard && mounted) {
+    if (!isBoardsLoading && !isBoardsFetching && !currentBoard && mounted) {
       router.push("/app");
     }
-  }, [isBoardsLoading, currentBoard, mounted, router]);
+  }, [isBoardsLoading, isBoardsFetching, currentBoard, mounted, router]);
 
   if (!mounted || isBoardsLoading) {
     return <div>Loading</div>;
