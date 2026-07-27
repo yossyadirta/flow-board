@@ -31,7 +31,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, UploadCloud, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { formatDueDate } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -52,14 +53,6 @@ const COLORS = [
   "#de8bfa",
 ];
 
-const IMAGES = [
-  "/task-cover-1.webp",
-  "/task-cover-2.webp",
-  "/task-cover-3.webp",
-  "/task-cover-4.webp",
-  "/task-cover-5.webp",
-  "/task-cover-6.webp",
-];
 
 type Props = {
   onSubmit: (values: TaskFormValues) => void;
@@ -282,17 +275,18 @@ export function TaskForm({ onSubmit, defaultValues, onValidityChange, boardId }:
                 )}
 
                 {cover.type === "image" && (
-                  <div className="grid grid-cols-3 gap-2 mt-2">
-                    {IMAGES.map((img) => (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <CoverUploader
+                      onUpload={(url) => field.onChange({ type: "image", value: url })}
+                    />
+                    {cover.value && cover.value.trim() !== "" && (
                       <CoverImageItem
-                        key={img}
-                        img={img}
-                        selected={cover.value === img}
-                        onClick={() =>
-                          field.onChange({ type: "image", value: img })
-                        }
+                        key={cover.value}
+                        img={cover.value}
+                        selected={true}
+                        onClick={() => {}}
                       />
-                    ))}
+                    )}
                   </div>
                 )}
               </Field>
@@ -335,7 +329,73 @@ function CoverImageItem({
           priority
           onLoadingComplete={() => setLoading(false)}
         />
+        <div
+          className={`absolute inset-0 bg-black/10 z-10 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+        />
+        <div
+          className={`absolute inset-0 border-2 rounded-md z-20 pointer-events-none transition-colors ${selected ? "border-primary" : "border-transparent"
+            }`}
+        />
       </div>
     </button>
+  );
+}
+
+function CoverUploader({ onUpload }: { onUpload: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploading(true);
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from("task-covers")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("task-covers")
+        .getPublicUrl(filePath);
+
+      if (publicUrlData) {
+        onUpload(publicUrlData.publicUrl);
+      }
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+      alert("Gagal mengunggah gambar. Pastikan Anda sudah menjalankan SQL script untuk Supabase Storage.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="relative w-full h-20 rounded-md overflow-hidden bg-secondary hover:bg-secondary/80 transition-colors border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer group">
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleUpload}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        disabled={uploading}
+      />
+      {uploading ? (
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      ) : (
+        <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
+          <UploadCloud className="w-6 h-6" />
+          <span className="text-xs font-medium">Upload Image</span>
+        </div>
+      )}
+    </div>
   );
 }

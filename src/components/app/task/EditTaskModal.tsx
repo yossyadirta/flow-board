@@ -63,19 +63,21 @@ export function EditTaskModal({ open, onClose, data }: Props) {
         <DialogHeader>
           <DialogTitle className="sr-only">Edit Task</DialogTitle>
         </DialogHeader>
-        <TaskForm
-          boardId={data?.boardId || ""}
-          onSubmit={handleSubmit}
-          onValidityChange={setCanSubmit}
-          defaultValues={{
-            status: data?.status,
-            title: data?.title,
-            dueDate: data?.dueDate ? new Date(data.dueDate) : undefined,
-            description: data?.description,
-            cover: data?.cover,
-            assigneeId: data?.assigneeId,
-          }}
-        />
+        <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2">
+          <TaskForm
+            boardId={data?.boardId || ""}
+            onSubmit={handleSubmit}
+            onValidityChange={setCanSubmit}
+            defaultValues={{
+              status: data?.status,
+              title: data?.title,
+              dueDate: data?.dueDate ? new Date(data.dueDate) : undefined,
+              description: data?.description,
+              cover: data?.cover,
+              assigneeId: data?.assigneeId,
+            }}
+          />
+        </div>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" onClick={onClose}>

@@ -28,6 +28,9 @@ type Props = {
   setModalState: (data: ModalState) => void;
   isOverlay?: boolean;
   activeId?: string | null;
+  disableDnD?: boolean;
+  customBadge?: React.ReactNode;
+  hideAssignee?: boolean;
 };
 
 const TaskItem = ({
@@ -36,6 +39,9 @@ const TaskItem = ({
   setModalState,
   isOverlay,
   activeId,
+  disableDnD,
+  customBadge,
+  hideAssignee,
 }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -46,7 +52,7 @@ const TaskItem = ({
   const textRef = useRef<HTMLDivElement>(null);
   const isOverflow = useIsOverflow(textRef);
 
-  const style = !isOverlay
+  const style = !isOverlay && !disableDnD
     ? {
       transform: CSS.Transform.toString(transform),
       transition,
@@ -60,10 +66,10 @@ const TaskItem = ({
   return (
     <Card
       className="group relative cursor-pointer border-0 bg-card text-card-foreground rounded-xl shadow-sm transition-all overflow-hidden py-0 gap-0"
-      ref={!isOverlay ? setNodeRef : undefined}
+      ref={!isOverlay && !disableDnD ? setNodeRef : undefined}
       style={style}
-      {...(!isOverlay ? attributes : {})}
-      {...(!isOverlay ? listeners : {})}
+      {...(!isOverlay && !disableDnD ? attributes : {})}
+      {...(!isOverlay && !disableDnD ? listeners : {})}
     >
       <div
         className={`absolute top-3 right-3 z-20 transition-opacity duration-200 ${isMenuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
@@ -118,12 +124,18 @@ const TaskItem = ({
       )}
 
       <div className="p-4 pt-3 flex flex-col gap-2.5">
+        {customBadge && (
+          <div className="flex justify-start">
+            {customBadge}
+          </div>
+        )}
+
         <CardHeader className="p-0 gap-0">
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <CardTitle
-                  className="flex-1 min-w-0 truncate font-medium text-sm leading-tight pr-6"
+                  className="flex-1 min-w-0 truncate font-medium text-sm leading-tight pr-6 text-left"
                   ref={textRef}
                 >
                   {data?.title}
@@ -152,7 +164,7 @@ const TaskItem = ({
             )}
           </div>
           
-          {data.assignee && (
+          {!hideAssignee && data.assignee && (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>

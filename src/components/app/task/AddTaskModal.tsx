@@ -68,14 +68,16 @@ export function AddTaskModal({ open, onClose, status, boardId }: Props) {
         <DialogHeader>
           <DialogTitle className="sr-only">Add Task</DialogTitle>
         </DialogHeader>
-        <TaskForm
-          boardId={boardId}
-          onSubmit={handleSubmit}
-          onValidityChange={setCanSubmit}
-          defaultValues={{
-            status,
-          }}
-        />
+        <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2">
+          <TaskForm
+            boardId={boardId}
+            onSubmit={handleSubmit}
+            onValidityChange={setCanSubmit}
+            defaultValues={{
+              status,
+            }}
+          />
+        </div>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" onClick={onClose}>

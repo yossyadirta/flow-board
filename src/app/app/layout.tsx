@@ -11,7 +11,7 @@ import { GuestBanner } from "@/components/app/GuestBanner";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Clipboard, SearchIcon, SunMoon, LogOut } from "lucide-react";
+import { Clipboard, SearchIcon, SunMoon, ListTodo } from "lucide-react";
 import { ProfileDropdown } from "@/components/app/ProfileDropdown";
 import BoardMenuItem from "@/components/app/BoardMenuItem";
 import {
@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { OnboardingProvider } from "@/providers/OnboardingProvider";
+import { cn } from "@/lib/utils";
+import { TasksSubMenu } from "@/components/app/task/TasksSubMenu";
 
 export default function DashboardLayout({
   children,
@@ -36,7 +38,7 @@ export default function DashboardLayout({
   const [isMounted, setIsMounted] = useState(false);
   const [isOpenAddBoardModal, setIsOpenAddBoardModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<{name: string, bg_color: string} | null>(null);
+  const [userProfile, setUserProfile] = useState<{ name: string, bg_color: string } | null>(null);
   const [search, setSearch] = useState("");
 
   const keyword = search.toLowerCase().trim();
@@ -58,6 +60,8 @@ export default function DashboardLayout({
 
   const favoriteBoards = filteredBoards.filter((b) => b.isFavorite);
 
+  const isTasksPage = pathname.startsWith("/app/tasks");
+
   const handleUpdateMounted = useEffectEvent(() => {
     setIsMounted(true);
   });
@@ -77,15 +81,15 @@ export default function DashboardLayout({
           .select("name, bg_color")
           .eq("id", data.user.id)
           .single();
-          
+
         let finalBgColor = profile?.bg_color;
-        
+
         // Auto-fix for existing users who haven't re-logged in
         if (profile && !profile.bg_color && data.user.email) {
           finalBgColor = generateProfileColor(data.user.email);
           await supabase.from("profiles").update({ bg_color: finalBgColor }).eq("id", data.user.id);
         }
-        
+
         if (profile) {
           setUserProfile({ name: profile.name, bg_color: finalBgColor });
         }
@@ -100,10 +104,10 @@ export default function DashboardLayout({
         }
       }
     );
-    
+
     const handleProfileUpdate = () => checkAuth();
     window.addEventListener("profile-updated", handleProfileUpdate);
-    
+
     return () => {
       authListener.subscription.unsubscribe();
       window.removeEventListener("profile-updated", handleProfileUpdate);
@@ -114,150 +118,177 @@ export default function DashboardLayout({
 
   return (
     <OnboardingProvider>
-    <>
-      <SidebarProvider
-        style={{ "--sidebar-width": "360px" } as React.CSSProperties}
-      >
-        <Sidebar className="h-screen p-4 bg-background">
-          <div className="flex h-full bg-secondary rounded-2xl">
-            {/* RAIL MENU */}
-            <div className="flex flex-col justify-between py-2 mr-0">
-              <div className="w-16 flex flex-col items-center gap-4">
-                <Link href="/app">
-                  <button className="p-2 rounded-lg hover:bg-accent flex flex-col align-middle justify-center text-[0.75rem] gap-1.5 font-medium items-center cursor-pointer">
-                    <Image
-                      src="/logo.svg"
-                      alt="Flowboard"
-                      width={32}
-                      height={32}
-                    />
-                  </button>
-                </Link>
-                <Link href="/app">
-                  <button className="p-2 rounded-lg hover:bg-accent flex flex-col align-middle justify-center text-[0.75rem] gap-1.5 font-medium items-center bg-background cursor-pointer">
-                    <Clipboard
-                      className="flex justify-center items-center text-center text-[0.5rem]"
-                      size={21}
-                    />
-                    Boards
-                  </button>
-                </Link>
-                {/* <button
+      <>
+        <SidebarProvider
+          style={{ "--sidebar-width": "360px" } as React.CSSProperties}
+        >
+          <Sidebar className="h-screen p-4 bg-background">
+            <div className="flex h-full bg-secondary rounded-2xl">
+              {/* RAIL MENU */}
+              <div className="flex flex-col justify-between py-2 mr-0">
+                <div className="w-16 flex flex-col items-center gap-4">
+                  <Link href="/app">
+                    <button className="p-2 rounded-lg hover:bg-accent flex flex-col align-middle justify-center text-[0.75rem] gap-1.5 font-medium items-center cursor-pointer">
+                      <Image
+                        src="/logo.svg"
+                        alt="Flowboard"
+                        width={32}
+                        height={32}
+                      />
+                    </button>
+                  </Link>
+                  <Link href="/app">
+                    <button className={cn(
+                      "p-2 w-14 rounded-lg flex flex-col align-middle justify-center text-[0.65rem] gap-1 font-medium items-center cursor-pointer transition-colors",
+                      (pathname === "/app" || pathname.startsWith("/app/b/"))
+                        ? "bg-background shadow-sm text-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}>
+                      <Clipboard
+                        className="flex justify-center items-center text-center"
+                        size={18}
+                        strokeWidth={2}
+                      />
+                      Boards
+                    </button>
+                  </Link>
+                  <Link href="/app/tasks">
+                    <button className={cn(
+                      "p-2 w-14 rounded-lg flex flex-col align-middle justify-center text-[0.65rem] gap-1 font-medium items-center cursor-pointer transition-colors",
+                      pathname.startsWith("/app/tasks")
+                        ? "bg-background shadow-sm text-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}>
+                      <ListTodo
+                        className="flex justify-center items-center text-center"
+                        size={18}
+                        strokeWidth={2}
+                      />
+                      Tasks
+                    </button>
+                  </Link>
+                  {/* <button
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   className="p-2 rounded-lg hover:bg-accent flex flex-col align-middle justify-center text-[0.75rem] gap-1.5 font-medium items-center cursor-pointer"
                 >
                   <SunMoon />
                 </button> */}
-              </div>
-              <div className="w-16 flex flex-col items-center gap-4">
-                <button
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="w-10 h-10 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0"
-                  title="Toggle Theme"
-                >
-                  <SunMoon className="w-5 h-5" />
-                </button>
-                <div className="mb-2">
-                  <ProfileDropdown userEmail={userEmail} userProfile={userProfile} />
+                </div>
+                <div className="w-16 flex flex-col items-center gap-4">
+                  <button
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    className="w-10 h-10 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0"
+                    title="Toggle Theme"
+                  >
+                    <SunMoon className="w-5 h-5" />
+                  </button>
+                  <div className="mb-2">
+                    <ProfileDropdown userEmail={userEmail} userProfile={userProfile} />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* SUB MENU */}
-            <div className="flex-1 flex flex-col bg-background m-2 rounded-2xl ml-0 overflow-hidden">
-              {/* SEARCH BOX */}
-              <div className="p-3 shrink-0">
-                <InputGroup className="border-0">
-                  <InputGroupInput
-                    placeholder="Search boards..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
+              {/* SUB MENU */}
+              <div className="flex-1 flex flex-col bg-background m-2 rounded-2xl ml-0 overflow-hidden">
+                {isTasksPage ? (
+                  <TasksSubMenu />
+                ) : (
+                  <>
+                    {/* SEARCH BOX */}
+                    <div className="p-3 shrink-0">
+                      <InputGroup className="border-0">
+                        <InputGroupInput
+                          placeholder="Search boards..."
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
 
-                  <InputGroupAddon>
-                    <SearchIcon className="text-muted-foreground" />
-                  </InputGroupAddon>
-                </InputGroup>
-              </div>
+                        <InputGroupAddon>
+                          <SearchIcon className="text-muted-foreground" />
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </div>
 
-              <SidebarGroup>
-                <SidebarMenu>
-                  <SidebarMenuButton
-                    onClick={() => setIsOpenAddBoardModal(true)}
-                    className="cursor-pointer"
-                  >
-                    <span className="text-muted-foreground font-medium">
-                      + Add Board
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenu>
-              </SidebarGroup>
-
-              {/* BOARD LIST */}
-              <ScrollArea className="flex-1 min-h-0 [&>div>div]:block!">
-                <SidebarContent>
-                  {favoriteBoards?.length > 0 && (
                     <SidebarGroup>
-                      <SidebarGroupLabel>Favorites</SidebarGroupLabel>
                       <SidebarMenu>
-                        {favoriteBoards.map((board) => (
-                          <BoardMenuItem
-                            item={board}
-                            pathname={pathname}
-                            key={board.id}
-                            isFavoriteSection
-                          />
-                        ))}
+                        <SidebarMenuButton
+                          onClick={() => setIsOpenAddBoardModal(true)}
+                          className="cursor-pointer"
+                        >
+                          <span className="text-muted-foreground font-medium">
+                            + Add Board
+                          </span>
+                        </SidebarMenuButton>
                       </SidebarMenu>
                     </SidebarGroup>
-                  )}
-                  <SidebarGroup>
-                    <SidebarGroupLabel>All Boards</SidebarGroupLabel>
-                    <SidebarMenu>
-                      {filteredBoards.length > 0 ? (
-                        filteredBoards.map((board) => (
-                          <BoardMenuItem
-                            key={board.id}
-                            item={board}
-                            pathname={pathname}
-                          />
-                        ))
-                      ) : (
-                        <SidebarMenuItem>
-                          <SidebarMenuButton className="cursor-default hover:bg-transparent">
-                            <span className="flex-1 min-w-0 truncate text-muted-foreground">
-                              No boards yet
-                            </span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      )}
-                    </SidebarMenu>
-                  </SidebarGroup>
-                </SidebarContent>
-              </ScrollArea>
-            </div>
-          </div>
-        </Sidebar>
-        <SidebarInset className="h-screen overflow-hidden flex flex-col flex-1">
-          <GuestBanner />
-          <header className="flex h-14 shrink-0 items-center justify-between border-b px-4 md:hidden">
-            <Link href="/app" className="flex items-center gap-2">
-              <Image src="/logo.svg" alt="Flowboard" width={28} height={28} />
-              <span className="font-bold text-lg">Flowboard</span>
-            </Link>
-            <SidebarTrigger />
-          </header>
-          <div className="flex-1 overflow-hidden">
-            {children}
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
 
-      <AddBoardModal
-        open={isOpenAddBoardModal}
-        onClose={() => setIsOpenAddBoardModal(false)}
-      />
-    </>
+                    {/* BOARD LIST */}
+                    <ScrollArea className="flex-1 min-h-0 [&>div>div]:block!">
+                      <SidebarContent>
+                        {favoriteBoards?.length > 0 && (
+                          <SidebarGroup>
+                            <SidebarGroupLabel>Favorites</SidebarGroupLabel>
+                            <SidebarMenu>
+                              {favoriteBoards.map((board) => (
+                                <BoardMenuItem
+                                  item={board}
+                                  pathname={pathname}
+                                  key={board.id}
+                                  isFavoriteSection
+                                />
+                              ))}
+                            </SidebarMenu>
+                          </SidebarGroup>
+                        )}
+                        <SidebarGroup>
+                          <SidebarGroupLabel>All Boards</SidebarGroupLabel>
+                          <SidebarMenu>
+                            {filteredBoards.length > 0 ? (
+                              filteredBoards.map((board) => (
+                                <BoardMenuItem
+                                  key={board.id}
+                                  item={board}
+                                  pathname={pathname}
+                                />
+                              ))
+                            ) : (
+                              <SidebarMenuItem>
+                                <SidebarMenuButton className="cursor-default hover:bg-transparent">
+                                  <span className="flex-1 min-w-0 truncate text-muted-foreground">
+                                    No boards yet
+                                  </span>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            )}
+                          </SidebarMenu>
+                        </SidebarGroup>
+                      </SidebarContent>
+                    </ScrollArea>
+                  </>
+                )}
+              </div>
+            </div>
+          </Sidebar>
+          <SidebarInset className="h-screen overflow-hidden flex flex-col flex-1">
+            <GuestBanner />
+            <header className="flex h-14 shrink-0 items-center justify-between border-b px-4 md:hidden">
+              <Link href="/app" className="flex items-center gap-2">
+                <Image src="/logo.svg" alt="Flowboard" width={28} height={28} />
+                <span className="font-bold text-lg">Flowboard</span>
+              </Link>
+              <SidebarTrigger />
+            </header>
+            <div className="flex-1 overflow-hidden">
+              {children}
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+
+        <AddBoardModal
+          open={isOpenAddBoardModal}
+          onClose={() => setIsOpenAddBoardModal(false)}
+        />
+      </>
     </OnboardingProvider>
   );
 }
