@@ -19,7 +19,7 @@ export const useBoardDerived = ({ boardId }: Props) => {
   const search = searchParams.get("search") || "";
   const filter = searchParams.get("filter") || "all";
 
-  const allowedViews = ["kanban", "list", "table"] as const;
+  const allowedViews = ["kanban", "list", "table", "calendar"] as const;
   type View = (typeof allowedViews)[number];
 
   const isValidView = (value: string | null): value is View => {

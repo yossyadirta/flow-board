@@ -29,9 +29,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TasksKanbanView } from "@/components/app/task/TasksKanbanView";
-import { List, Table2 } from "lucide-react";
+import { List, Table2, CalendarDays } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TasksTableView } from "@/components/app/task/TasksTableView";
+import { TasksCalendarView } from "@/components/app/task/TasksCalendarView";
 
 function MyTasksContent() {
   const { mappedTasks, isLoading: isTasksLoading, updateTaskContent } = useTasks();
@@ -182,6 +183,18 @@ function MyTasksContent() {
                 />
                 Table
               </TabsTrigger>
+              <TabsTrigger
+                value="calendar"
+                className="flex items-center gap-2 cursor-pointer h-full"
+              >
+                <CalendarDays
+                  className={cn(
+                    "h-5 w-5",
+                    view === "calendar" ? "text-primary" : "",
+                  )}
+                />
+                Calendar
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -225,6 +238,16 @@ function MyTasksContent() {
               tasks={myTasks}
               boards={boards}
               onTaskClick={(task) => setModalState({ type: "edit-task", data: task })}
+            />
+          </div>
+        ) : view === "calendar" ? (
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <TasksCalendarView
+              tasks={myTasks}
+              boards={boards}
+              onTaskClick={(task) => setModalState({ type: "edit-task", data: task })}
+              modalState={modalState}
+              setModalState={setModalState}
             />
           </div>
         ) : (
