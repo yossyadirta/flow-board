@@ -200,7 +200,7 @@ function MyTasksContent() {
         </div>
         {isLoading ? (
           <ScrollArea className="flex-1">
-            <div className="p-6 max-w-5xl mx-auto space-y-3">
+            <div className="p-4 md:p-6 max-w-5xl space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
               ))}
@@ -241,7 +241,7 @@ function MyTasksContent() {
             />
           </div>
         ) : view === "calendar" ? (
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden p-4 md:p-6 md:pt-4">
             <TasksCalendarView
               tasks={myTasks}
               boards={boards}
@@ -252,7 +252,7 @@ function MyTasksContent() {
           </div>
         ) : (
           <ScrollArea className="flex-1">
-            <div className="p-6 max-w-5xl mx-auto">
+            <div className="p-4 md:p-6 max-w-5xl">
               <div className="space-y-3">
                 {myTasks.map((task) => {
                   const StatusIcon = getStatusConfig(task.status).icon;

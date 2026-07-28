@@ -110,7 +110,7 @@ export default function HomeDashboard() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Welcome back{userName ? <span>, {userName}</span> : ""}! 👋
+              Welcome back{userName ? <span>, {userName}</span> : ""}!
             </h1>
             <p className="text-sm md:text-base text-muted-foreground mt-1">
               Track and manage all your personal projects in one place.
