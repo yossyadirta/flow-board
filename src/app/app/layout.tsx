@@ -13,6 +13,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Clipboard, SearchIcon, SunMoon, ListTodo } from "lucide-react";
 import { ProfileDropdown } from "@/components/app/ProfileDropdown";
+import { NotificationBell } from "@/components/app/NotificationBell";
 import BoardMenuItem from "@/components/app/BoardMenuItem";
 import {
   InputGroup,
@@ -175,13 +176,16 @@ export default function DashboardLayout({
                 </button> */}
                 </div>
                 <div className="w-16 flex flex-col items-center gap-4">
-                  <button
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    className="w-10 h-10 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0"
-                    title="Toggle Theme"
-                  >
-                    <SunMoon className="w-5 h-5" />
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <NotificationBell />
+                    <button
+                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                      className="w-10 h-10 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0"
+                      title="Toggle Theme"
+                    >
+                      <SunMoon className="w-5 h-5" />
+                    </button>
+                  </div>
                   <div className="mb-2">
                     <ProfileDropdown userEmail={userEmail} userProfile={userProfile} />
                   </div>

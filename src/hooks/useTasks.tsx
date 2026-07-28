@@ -7,29 +7,35 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+let tasksSubscriberCount = 0;
+let tasksChannel: ReturnType<typeof supabase.channel> | null = null;
+
 export const useTasks = (boardId?: string) => {
   const queryClient = useQueryClient();
 
   // Setup Real-time Sync for Tasks
   useEffect(() => {
-    // Subscribe if we are in a board or globally
-    // Use a unique channel name to prevent "cannot add callbacks after subscribe" in React Strict Mode
-    const channelName = `tasks-changes-${boardId || 'all'}-${Math.random()}`;
-    const channel = supabase.channel(channelName)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks' },
-        (payload) => {
-          console.log("Realtime event received:", payload);
-          // Invalidate the tasks query to trigger a background refetch
-          // This creates the "magic" auto-updating UI
-          queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        }
-      )
-      .subscribe();
+    tasksSubscriberCount++;
+
+    if (tasksSubscriberCount === 1) {
+      tasksChannel = supabase.channel('tasks-changes-global')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'tasks' },
+          (payload) => {
+            console.log("Realtime event received:", payload);
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
+          }
+        )
+        .subscribe();
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      tasksSubscriberCount--;
+      if (tasksSubscriberCount === 0 && tasksChannel) {
+        supabase.removeChannel(tasksChannel);
+        tasksChannel = null;
+      }
     };
   }, [queryClient]);
 
@@ -37,8 +43,8 @@ export const useTasks = (boardId?: string) => {
   const { data: mappedTasks = [], isLoading } = useQuery<Task[]>({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return [];
 
       const { data, error } = await supabase
         .from("tasks")
@@ -159,6 +165,9 @@ export const useTasks = (boardId?: string) => {
   // Update Task Content Mutation (optimistic update)
   const updateTaskContentMutation = useMutation({
     mutationFn: async (task: Task) => {
+      if (task.id.startsWith("temp-")) {
+        return;
+      }
       const { error } = await supabase
         .from("tasks")
         .update({
@@ -197,7 +206,8 @@ export const useTasks = (boardId?: string) => {
   // Update Task Drag and Drop Mutation (optimistic update for bulk tasks reordering)
   const updateTaskDragAndDropMutation = useMutation({
     mutationFn: async (updatedTasksRecord: Record<string, Task>) => {
-      const tasksToUpdate = Object.values(updatedTasksRecord);
+      const tasksToUpdate = Object.values(updatedTasksRecord).filter(t => !t.id.startsWith("temp-"));
+      if (tasksToUpdate.length === 0) return;
 
       const updatePromises = tasksToUpdate.map((task) =>
         supabase.from("tasks").update({
@@ -247,6 +257,7 @@ export const useTasks = (boardId?: string) => {
   // Delete Task Mutation
   const deleteTaskMutation = useMutation({
     mutationFn: async (taskId: string) => {
+      if (taskId.startsWith("temp-")) return;
       const { error } = await supabase
         .from("tasks")
         .delete()

@@ -6,26 +6,36 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-export const useTaskComments = (taskId: string | undefined) => {
+let commentsSubscriberCount = 0;
+let commentsChannel: ReturnType<typeof supabase.channel> | null = null;
+
+export const useTaskComments = (taskId?: string) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!taskId) return;
 
-    const channelName = `task-comments-${taskId}-${Math.random()}`;
-    const channel = supabase.channel(channelName)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'task_comments', filter: `task_id=eq.${taskId}` },
-        (payload) => {
-          console.log("Realtime comment event:", payload);
-          queryClient.invalidateQueries({ queryKey: ["comments", taskId] });
-        }
-      )
-      .subscribe();
+    commentsSubscriberCount++;
+
+    if (commentsSubscriberCount === 1) {
+      commentsChannel = supabase.channel(`task-comments-${taskId}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'task_comments', filter: `task_id=eq.${taskId}` },
+          (payload) => {
+            console.log("Realtime comment received:", payload);
+            queryClient.invalidateQueries({ queryKey: ["comments", taskId] });
+          }
+        )
+        .subscribe();
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      commentsSubscriberCount--;
+      if (commentsSubscriberCount === 0 && commentsChannel) {
+        supabase.removeChannel(commentsChannel);
+        commentsChannel = null;
+      }
     };
   }, [taskId, queryClient]);
 
@@ -58,6 +68,9 @@ export const useTaskComments = (taskId: string | undefined) => {
   const { mutate: addComment, isPending: isAdding } = useMutation({
     mutationFn: async (content: string) => {
       if (!taskId) throw new Error("No task ID");
+      if (taskId.startsWith("temp-")) {
+        throw new Error("Tugas sedang diproses. Mohon tunggu sebentar sebelum memberikan komentar.");
+      }
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");

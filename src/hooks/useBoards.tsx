@@ -18,8 +18,8 @@ export const useBoards = () => {
   const { data: boards = [], isLoading, isFetching } = useQuery<Board[]>({
     queryKey: ["boards"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return [];
 
       const { data, error } = await supabase
         .from("boards")
@@ -44,7 +44,8 @@ export const useBoards = () => {
   // Mutation to add a new board
   const addBoardMutation = useMutation({
     mutationFn: async (data: AddBoardPayload) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Not authenticated");
       const { data: board, error } = await supabase
         .from("boards")
         .insert({
@@ -53,7 +54,7 @@ export const useBoards = () => {
           icon: data.icon,
           is_favorite: false,
           task_counter: 0,
-          owner_id: user?.id,
+          owner_id: session.user.id,
         })
         .select()
         .single();
