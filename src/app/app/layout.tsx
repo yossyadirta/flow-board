@@ -11,7 +11,7 @@ import { GuestBanner } from "@/components/app/GuestBanner";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Clipboard, SearchIcon, SunMoon, ListTodo } from "lucide-react";
+import { Clipboard, SearchIcon, SunMoon, ListTodo, Menu } from "lucide-react";
 import { ProfileDropdown } from "@/components/app/ProfileDropdown";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import BoardMenuItem from "@/components/app/BoardMenuItem";
@@ -121,23 +121,18 @@ export default function DashboardLayout({
     <OnboardingProvider>
       <>
         <SidebarProvider
-          style={{ "--sidebar-width": "360px" } as React.CSSProperties}
+          style={{
+            "--sidebar-width": "360px",
+            "--sidebar-width-icon": "96px"
+          } as React.CSSProperties}
         >
-          <Sidebar className="h-screen p-4 bg-background">
-            <div className="flex h-full bg-secondary rounded-2xl">
+          <Sidebar collapsible="icon" className="h-screen p-4 pr-0 bg-background group-data-[state=collapsed]:p-4">
+            <div className="flex h-full bg-secondary rounded-2xl overflow-hidden relative">
+
               {/* RAIL MENU */}
               <div className="flex flex-col justify-between py-2 mr-0">
                 <div className="w-16 flex flex-col items-center gap-4">
-                  <Link href="/app">
-                    <button className="p-2 rounded-lg hover:bg-accent flex flex-col align-middle justify-center text-[0.75rem] gap-1.5 font-medium items-center cursor-pointer">
-                      <Image
-                        src="/logo.svg"
-                        alt="Flowboard"
-                        width={32}
-                        height={32}
-                      />
-                    </button>
-                  </Link>
+                  <SidebarTrigger className="w-10 h-10 mt-1 rounded-md bg-transparent text-muted-foreground flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0" />
                   <Link href="/app">
                     <button className={cn(
                       "p-2 w-14 rounded-lg flex flex-col align-middle justify-center text-[0.65rem] gap-1 font-medium items-center cursor-pointer transition-colors",
@@ -192,8 +187,8 @@ export default function DashboardLayout({
                 </div>
               </div>
 
-              {/* SUB MENU */}
-              <div className="flex-1 flex flex-col bg-background m-2 rounded-2xl ml-0 overflow-hidden">
+              {/* SUB MENU (Hidden when collapsed) */}
+              <div className="flex-1 flex flex-col bg-background m-2 rounded-2xl ml-0 overflow-hidden group-data-[collapsible=icon]:hidden">
                 {isTasksPage ? (
                   <TasksSubMenu />
                 ) : (
