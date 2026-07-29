@@ -21,7 +21,7 @@ export function TasksSubMenu() {
     { id: "today", label: "Today", icon: Sun, color: "text-amber-500" },
     { id: "next-7-days", label: "Next 7 Days", icon: CalendarDays, color: "text-purple-500" },
     { id: "overdue", label: "Overdue", icon: AlertCircle, color: "text-red-500" },
-    { id: "completed", label: "Completed", icon: CheckCircle2, color: "text-emerald-500" },
+    { id: "completed", label: "Completed", icon: CheckCircle2, color: "text-primary" },
   ];
 
   return (

@@ -47,9 +47,9 @@ type Props = {
 };
 
 const STATUS_CONFIG = {
-  "todo": { label: "To Do", icon: Circle, color: "text-muted-foreground", bg: "bg-muted" },
-  "in-progress": { label: "In Progress", icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" },
-  "done": { label: "Done", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+  "todo": { label: "To Do", icon: Circle, color: "text-amber-500", bg: "bg-amber-500/10" },
+  "in-progress": { label: "In Progress", icon: Timer, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+  "done": { label: "Done", icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10" },
 };
 
 export const TasksTableView = ({ tasks, boards, onTaskClick }: Props) => {
