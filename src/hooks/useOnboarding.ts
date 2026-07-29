@@ -6,6 +6,7 @@ import { ONBOARDING_STEPS } from "@/lib/onboardingSteps";
 import { useUIStore } from "@/store/useUIStore";
 import { useOnboardingContext, OnboardingEvent } from "@/context/OnboardingContext";
 import { supabase } from "@/lib/supabase";
+import { usePathname } from "next/navigation";
 
 export const useOnboarding = () => {
   const [run, setRun] = useState(false);
@@ -50,8 +51,13 @@ export const useOnboarding = () => {
         // Guest user: check localStorage via Zustand
         if (user.is_anonymous) {
           if (!hasSeenOnboarding) {
-            setRun(true);
-            setIsOnboarding(true);
+            if (onboardingStepIndex > 0) {
+              setHasSeenOnboarding();
+              setOnboardingStepIndex(0);
+            } else {
+              setRun(true);
+              setIsOnboarding(true);
+            }
           }
           setLoading(false);
           return;
@@ -65,8 +71,17 @@ export const useOnboarding = () => {
           .single();
 
         if (profile && !profile.has_seen_onboarding) {
-          setRun(true);
-          setIsOnboarding(true);
+          if (onboardingStepIndex > 0) {
+            setHasSeenOnboarding();
+            setOnboardingStepIndex(0);
+            await supabase
+              .from("profiles")
+              .update({ has_seen_onboarding: true })
+              .eq("id", user.id);
+          } else {
+            setRun(true);
+            setIsOnboarding(true);
+          }
         }
       } catch (error) {
         console.error("Error checking onboarding status:", error);
@@ -76,7 +91,7 @@ export const useOnboarding = () => {
     };
 
     checkOnboarding();
-  }, [hasSeenOnboarding, setIsOnboarding]);
+  }, [hasSeenOnboarding, setIsOnboarding, onboardingStepIndex, setHasSeenOnboarding, setOnboardingStepIndex]);
 
   // Complete onboarding — update both localStorage and Supabase
   const completeOnboarding = useCallback(async () => {
@@ -141,7 +156,22 @@ export const useOnboarding = () => {
     return unsubscribe;
   }, [run, subscribe, completeOnboarding]);
 
-  // Joyride v3 onEvent callback handler
+  const pathname = usePathname();
+  const isInitialMount = useRef(true);
+  
+  useEffect(() => {
+    if (isInitialMount.current && run && stepIndex > 0) {
+      isInitialMount.current = false;
+      completeOnboarding();
+      return;
+    }
+    isInitialMount.current = false;
+    
+    if (run && pathname === "/app" && stepIndex >= 2) {
+      completeOnboarding();
+    }
+  }, [run, pathname, stepIndex, completeOnboarding]);
+
   const handleJoyrideEvent = useCallback(
     (data: EventData, controls: Controls) => {
       const { status, action, index, type } = data;
@@ -149,13 +179,16 @@ export const useOnboarding = () => {
       // Store controls ref for programmatic use
       controlsRef.current = controls;
 
-      // User finished or skipped the tour
       if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
         completeOnboarding();
         return;
       }
 
-      // Handle step navigation for non-interactive steps (drag & drop instruction steps)
+      if (type === EVENTS.TARGET_NOT_FOUND || type === EVENTS.ERROR) {
+        completeOnboarding();
+        return;
+      }
+
       if (type === EVENTS.STEP_AFTER) {
         if (action === ACTIONS.NEXT) {
           setStepIndex(index + 1);
@@ -164,12 +197,11 @@ export const useOnboarding = () => {
         }
       }
 
-      // Handle close button
       if (action === ACTIONS.CLOSE) {
         completeOnboarding();
       }
     },
-    [completeOnboarding]
+    [completeOnboarding, setStepIndex]
   );
 
   return {

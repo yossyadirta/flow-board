@@ -9,7 +9,7 @@ export const ONBOARDING_STEPS: Step[] = [
     skipBeacon: true,
     placement: "bottom",
     blockTargetInteraction: false,
-    data: { hideFooter: true },
+    data: { hideNext: true, hideBack: true },
   },
   {
     target: '[data-onboarding="board-modal"]',
@@ -19,7 +19,7 @@ export const ONBOARDING_STEPS: Step[] = [
     skipBeacon: true,
     placement: "right",
     blockTargetInteraction: false,
-    data: { hideFooter: true },
+    data: { hideNext: true, hideBack: true },
   },
   {
     target: '[data-onboarding="add-task-btn-todo"]',
@@ -29,7 +29,7 @@ export const ONBOARDING_STEPS: Step[] = [
     skipBeacon: true,
     placement: "top",
     blockTargetInteraction: false,
-    data: { hideFooter: true },
+    data: { hideNext: true, hideBack: true },
   },
   {
     target: '[data-onboarding="task-input"]',
@@ -39,7 +39,7 @@ export const ONBOARDING_STEPS: Step[] = [
     skipBeacon: true,
     placement: "top",
     blockTargetInteraction: false,
-    data: { hideFooter: true },
+    data: { hideNext: true, hideBack: true },
   },
   {
     target: '[data-onboarding="col-in-progress"]',

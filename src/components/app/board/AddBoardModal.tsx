@@ -26,7 +26,7 @@ export function AddBoardModal({ open, onClose }: Props) {
   const router = useRouter();
 
   const { addBoard } = useBoards();
-  const { signalEvent } = useOnboardingContext();
+  const { signalEvent, isOnboarding } = useOnboardingContext();
 
   const [canSubmit, setCanSubmit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,23 +52,35 @@ export function AddBoardModal({ open, onClose }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(val) => {
+        if (!val && isOnboarding) return;
+        if (!val) onClose();
+      }}
+      modal={!isOnboarding}
+    >
       <DialogOverlay className="fixed inset-0 bg-black/20 backdrop-blur-sm" />
       <DialogContent 
         className="sm:max-w-sm" 
         data-onboarding="board-modal"
-        onInteractOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          if (isOnboarding) e.preventDefault();
+        }}
+        showCloseButton={!isOnboarding}
       >
         <DialogHeader>
           <DialogTitle>Add Board</DialogTitle>
         </DialogHeader>
         <BoardForm onSubmit={handleSubmit} onValidityChange={setCanSubmit} />
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-          </DialogClose>
+          {!isOnboarding && (
+            <DialogClose asChild>
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+            </DialogClose>
+          )}
           <Button type="submit" form="board-form" disabled={!canSubmit || isSubmitting}>
             {isSubmitting ? "Creating..." : "Create"}
           </Button>
