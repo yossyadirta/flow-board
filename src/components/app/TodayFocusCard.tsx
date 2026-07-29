@@ -100,7 +100,7 @@ export function TodayFocusCard({ tasks, boards, currentUserId, className }: Toda
 
   const handleTaskClick = (task: Task) => {
     const board = boards.find((b) => b.id === task.boardId);
-    if (board) router.push(`/app/${board.key}`);
+    if (board) router.push(`/app/board/${board.key}`);
   };
 
   return (

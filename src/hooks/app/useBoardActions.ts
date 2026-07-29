@@ -44,7 +44,7 @@ export const useBoardActions = ({ boardId }: Props) => {
     deleteBoard(boardId);
 
     if (nextBoardKey) {
-      router.push(`/app/${nextBoardKey}`);
+      router.push(`/app/board/${nextBoardKey}`);
     } else {
       router.push("/app");
     }

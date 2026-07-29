@@ -210,7 +210,9 @@ export default function HomeDashboard() {
                     key={`modal-${board.id}`}
                     onClick={() => {
                       setShowFavoritesModal(false);
-                      router.push(`/app/${board.key}`);
+                      if (board.key) {
+                        router.push(`/app/board/${board.key}`);
+                      }
                     }}
                     className="p-3 md:p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer flex flex-col gap-2"
                   >

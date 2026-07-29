@@ -36,7 +36,7 @@ export function BentoProjectsCard({ boards, getBoardMetrics, className }: BentoP
               return (
                 <button
                   key={board.id}
-                  onClick={() => router.push(`/app/${board.key || board.id}`)}
+                  onClick={() => router.push(`/app/board/${board.key || board.id}`)}
                   className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-accent/60 transition-colors text-left group"
                 >
                   <span className="text-lg shrink-0">{emoji}</span>

@@ -47,7 +47,7 @@ export function UpcomingDeadlinesCard({
                   key={task.id}
                   onClick={() =>
                     router.push(
-                      `/app/${boards.find((b) => b.id === task.boardId)?.key || task.boardId}`,
+                      `/app/board/${boards.find((b) => b.id === task.boardId)?.key || task.boardId}`,
                     )
                   }
                   className="flex flex-col gap-1 px-3 py-2 border-b border-border/40 hover:bg-accent/50 transition-colors cursor-pointer group"

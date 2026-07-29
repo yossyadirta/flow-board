@@ -144,7 +144,7 @@ function MyTasksContent() {
           </p>
         </div>
 
-        <div className="flex items-center justify-between border-b px-4 md:px-6 mt-4 shrink-0">
+        <div className="flex items-center justify-between border-b mx-4 md:mx-6 mt-4 shrink-0">
           <Tabs value={view} onValueChange={handleViewChange}>
             <TabsList variant="line" className="border-none h-12 bg-transparent">
               <TabsTrigger

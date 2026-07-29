@@ -11,7 +11,13 @@ import { GuestBanner } from "@/components/app/GuestBanner";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Clipboard, SearchIcon, SunMoon, ListTodo, Menu } from "lucide-react";
+import { 
+  Clipboard, 
+  ListTodo, 
+  SunMoon,
+  SearchIcon,
+  LayoutDashboard
+} from "lucide-react";
 import { ProfileDropdown } from "@/components/app/ProfileDropdown";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import BoardMenuItem from "@/components/app/BoardMenuItem";
@@ -136,7 +142,22 @@ export default function DashboardLayout({
                   <Link href="/app">
                     <button className={cn(
                       "p-2 w-14 rounded-lg flex flex-col align-middle justify-center text-[0.65rem] gap-1 font-medium items-center cursor-pointer transition-colors",
-                      (pathname === "/app" || pathname.startsWith("/app/b/"))
+                      pathname === "/app"
+                        ? "bg-background shadow-sm text-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}>
+                      <LayoutDashboard
+                        className="flex justify-center items-center text-center"
+                        size={18}
+                        strokeWidth={2}
+                      />
+                      Dashboard
+                    </button>
+                  </Link>
+                  <Link href="/app/board">
+                    <button className={cn(
+                      "p-2 w-14 rounded-lg flex flex-col align-middle justify-center text-[0.65rem] gap-1 font-medium items-center cursor-pointer transition-colors",
+                      pathname.startsWith("/app/board")
                         ? "bg-background shadow-sm text-foreground"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}>

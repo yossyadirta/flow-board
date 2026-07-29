@@ -45,7 +45,7 @@ export function AddBoardModal({ open, onClose }: Props) {
       await addBoard({ key, name, icon });
       onClose();
       signalEvent("board-created");
-      router.push(`/app/${key}`);
+      router.push(`/app/board/${key}`);
     } finally {
       setIsSubmitting(false);
     }
