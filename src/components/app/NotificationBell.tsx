@@ -14,13 +14,13 @@ const getNotificationConfig = (type: string) => {
     const status = type.split(':')[1];
     switch (status) {
       case 'todo':
-        return { icon: Circle, color: "text-muted-foreground", bg: "bg-muted" };
+        return { icon: Circle, color: "text-amber-500", bg: "bg-amber-500/10" };
       case 'in-progress':
-        return { icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" };
+        return { icon: Timer, color: "text-indigo-500", bg: "bg-indigo-500/10" };
       case 'done':
-        return { icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" };
+        return { icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10" };
       default:
-        return { icon: Activity, color: "text-emerald-500", bg: "bg-emerald-500/10" };
+        return { icon: Activity, color: "text-primary", bg: "bg-primary/10" };
     }
   }
 

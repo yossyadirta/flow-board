@@ -42,6 +42,27 @@ export const useBoardDashboardData = () => {
       .slice(0, 5);
   }, [mappedTasks]);
 
+  const totalTasks = mappedTasks.length;
+
+  const completedTasks = useMemo(
+    () => mappedTasks.filter((t) => t.status === "done").length,
+    [mappedTasks]
+  );
+
+  const inProgressTasks = useMemo(
+    () => mappedTasks.filter((t) => t.status === "in-progress").length,
+    [mappedTasks]
+  );
+
+  const overdueTasks = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return mappedTasks.filter((t) => {
+      if (t.status === "done" || !t.dueDate) return false;
+      return new Date(t.dueDate) < now;
+    }).length;
+  }, [mappedTasks]);
+
   // Helper functions
   const getBoardMetrics = (boardId: string) => {
     const boardTasks = mappedTasks.filter((t) => t.boardId === boardId);
@@ -77,5 +98,9 @@ export const useBoardDashboardData = () => {
     recentTasks,
     getBoardMetrics,
     getBoardName,
+    totalTasks,
+    completedTasks,
+    inProgressTasks,
+    overdueTasks,
   };
 };
