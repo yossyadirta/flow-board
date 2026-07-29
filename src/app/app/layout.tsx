@@ -122,7 +122,7 @@ export default function DashboardLayout({
       <>
         <SidebarProvider
           style={{
-            "--sidebar-width": "360px",
+            "--sidebar-width": "316px",
             "--sidebar-width-icon": "96px"
           } as React.CSSProperties}
         >
