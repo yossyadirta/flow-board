@@ -13,6 +13,7 @@ import BoardHeader from "@/components/app/BoardHeader";
 import BoardView from "@/components/app/BoardView";
 import BoardModals from "@/components/app/BoardModals";
 import { useOnboardingContext } from "@/context/OnboardingContext";
+import { BoardPageSkeleton } from "@/components/app/skeletons/BoardSkeletons";
 
 const Page = () => {
   const params = useParams<{ boardId: string }>();
@@ -57,7 +58,7 @@ const Page = () => {
   }, [isBoardsLoading, isBoardsFetching, currentBoard, mounted, router]);
 
   if (!mounted || isBoardsLoading) {
-    return <div>Loading</div>;
+    return <BoardPageSkeleton />;
   }
 
   if (!currentBoard) return null;
