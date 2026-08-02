@@ -19,7 +19,7 @@ export const useBoardDerived = ({ boardId }: Props) => {
   const search = searchParams.get("search") || "";
   const filter = searchParams.get("filter") || "all";
 
-  const allowedViews = ["kanban", "list", "table"] as const;
+  const allowedViews = ["kanban", "list", "table", "calendar"] as const;
   type View = (typeof allowedViews)[number];
 
   const isValidView = (value: string | null): value is View => {
@@ -101,6 +101,12 @@ export const useBoardDerived = ({ boardId }: Props) => {
           ).length || 0 / totalTask) * 100,
         );
 
+  const recentTasks = useMemo(() => {
+    return mappedTasks
+      .filter((task) => task.boardId === boardId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [mappedTasks, boardId]);
+
   return {
     visibleTasks,
     currentBoard,
@@ -113,5 +119,6 @@ export const useBoardDerived = ({ boardId }: Props) => {
     search,
     filter,
     view,
+    recentTasks,
   };
 };

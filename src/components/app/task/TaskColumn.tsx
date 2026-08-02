@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useTasks } from "@/hooks/useTasks";
 import { useEffect, useRef, useState } from "react";
+import { useOnboardingContext } from "@/context/OnboardingContext";
 
 type Props = {
   status: {
@@ -45,6 +46,7 @@ const TaskColumn = ({
   });
 
   const { addTask } = useTasks();
+  const { signalEvent, isOnboarding } = useOnboardingContext();
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -57,6 +59,7 @@ const TaskColumn = ({
     if (title.trim()) {
       addTask({ boardId, title: title.trim(), status: status.value });
       setTitle("");
+      signalEvent("task-created");
     }
     setIsAdding(false);
   };
@@ -89,6 +92,7 @@ const TaskColumn = ({
     <Card
       ref={setNodeRef}
       id={status.value}
+      data-onboarding={`col-${status.value}`}
       className="p-3 flex flex-col h-auto max-h-full overflow-hidden gap-3 bg-secondary border-0"
     >
       <div className="shrink-0 flex items-center justify-between py-1">
@@ -115,7 +119,10 @@ const TaskColumn = ({
             ))}
           </SortableContext>
           {isAdding && (
-            <Card className="p-4 border-0 bg-card shadow-md rounded-xl animate-in fade-in zoom-in duration-200">
+            <Card
+              data-onboarding="task-input"
+              className="p-4 border-0 bg-card shadow-md rounded-xl animate-in fade-in zoom-in duration-200"
+            >
               <textarea
                 ref={inputRef}
                 placeholder="What needs to be done?"
@@ -156,7 +163,11 @@ const TaskColumn = ({
       </ScrollArea>
 
       <Button
-        onClick={() => setIsAdding(true)}
+        data-onboarding={`add-task-btn-${status.value}`}
+        onClick={() => {
+          setIsAdding(true);
+          signalEvent("add-task-clicked");
+        }}
         variant="outline"
         className="shrink-0 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-0 bg-transparent! hover:bg-transparent focus:ring-0 data-[state=open]:bg-transparent p-0! justify-start shadow-none h-auto"
       >

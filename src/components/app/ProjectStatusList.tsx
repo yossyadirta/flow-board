@@ -42,7 +42,7 @@ export function ProjectStatusList({
             return (
               <div
                 key={board.id}
-                onClick={() => router.push(`/app/${board.key || board.id}`)}
+                onClick={() => router.push(`/app/board/${board.key || board.id}`)}
                 className="p-3 md:p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-card hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer flex flex-col gap-3"
               >
                 <div className="flex items-center justify-between">

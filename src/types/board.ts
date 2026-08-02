@@ -5,7 +5,8 @@ export type Board = {
   key: string;
   icon: BoardIconId;
   name: string;
-  createdAt: number;
+  createdAt: number | string;
   isFavorite: boolean;
   taskCounter: number;
+  owner_id?: string;
 };

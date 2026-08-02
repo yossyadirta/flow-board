@@ -60,6 +60,7 @@ export function BoardForm({
   return (
     <form
       id="board-form"
+      data-onboarding="board-form"
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >

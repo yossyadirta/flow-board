@@ -12,8 +12,34 @@ export type Task = {
   status: TaskStatus;
   boardId: string;
   order: number;
-  createdAt: number;
-  dueDate?: Date;
+  createdAt: number | string;
+  updatedAt?: number | string;
+  dueDate?: Date | string;
   cover?: TaskCover;
   description?: string;
+  author?: {
+    id: string;
+    name: string;
+    bg_color: string;
+  };
+  assigneeId?: string;
+  assignee?: {
+    id: string;
+    name: string;
+    bg_color: string;
+  };
+};
+
+export type TaskComment = {
+  id: string;
+  task_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  author?: {
+    id: string;
+    name: string;
+    bg_color: string;
+  };
 };

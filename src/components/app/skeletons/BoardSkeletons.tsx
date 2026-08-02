@@ -96,3 +96,27 @@ export function TableSkeleton() {
     </div>
   );
 }
+
+export function BoardPageSkeleton() {
+  return (
+    <div className="h-full flex flex-col overflow-hidden animate-in fade-in duration-300">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 md:p-5 shrink-0 border-b border-border/40">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 md:h-12 md:w-12 rounded-xl" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-6 w-32 md:w-48" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-9 w-9 md:h-10 md:w-10 rounded-full" />
+          <Skeleton className="h-9 w-24 md:h-10 md:w-28 rounded-full" />
+        </div>
+      </div>
+
+      <div className="flex-1 min-h-0 p-4 md:p-5">
+        <KanbanSkeleton />
+      </div>
+    </div>
+  );
+}

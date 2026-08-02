@@ -1,255 +1,395 @@
-import React, { useCallback, useRef, useMemo } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import {
   ArrowRight,
-  Clipboard,
-  SearchIcon,
-  Star,
-  SquareKanban,
-  List,
-  Table2,
-  PlusIcon,
   Clock,
-  BarChart3,
-  CheckCircle2,
+  PlusIcon,
+  SearchIcon,
+  Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { HERO_WORDS, DEMO_TASKS, wordVariants, fadeUp } from "./constants";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  HERO_HEADLINE,
+  HERO_SUBTITLE,
+  DEMO_TASKS,
+  VIEW_TABS,
+  type ViewKey,
+  fadeUp,
+  getStatusConfig,
+  getStatusLabel,
+} from "./constants";
+import { InteractiveDotGrid } from "./InteractiveDotGrid";
 import { Section } from "./Section";
 
-const GRID_GAP = 40;
-const DOT_RADIUS = 1.5;
-const COLS = 42;
-const ROWS = 24;
-const INFLUENCE_RADIUS = 120;
+const VIEW_CYCLE_MS = 4000;
 
-const ParticleField = ({
-  cursorX,
-  cursorY,
-  elWidth,
-  elHeight,
-}: {
-  cursorX: ReturnType<typeof useMotionValue<number>>;
-  cursorY: ReturnType<typeof useMotionValue<number>>;
-  elWidth: number;
-  elHeight: number;
-}) => {
-  const dots = useMemo(() => {
-    const result: { cx: number; cy: number; idx: number }[] = [];
-    for (let row = 0; row < ROWS; row++) {
-      for (let col = 0; col < COLS; col++) {
-        result.push({
-          cx: col * GRID_GAP + GRID_GAP / 2,
-          cy: row * GRID_GAP + GRID_GAP / 2,
-          idx: row * COLS + col,
-        });
-      }
-    }
-    return result;
-  }, []);
+interface HeroSectionProps {
+  onLaunchApp?: (e: React.MouseEvent) => void;
+}
+
+// --- Mini Kanban View ---
+const MiniKanban = () => {
+  const columns = [
+    { status: "todo" as const, label: "To Do" },
+    { status: "in-progress" as const, label: "In Progress" },
+    { status: "done" as const, label: "Done" },
+  ];
 
   return (
-    <svg
-      className="pointer-events-none absolute inset-0 h-full w-full"
-      viewBox={`0 0 ${COLS * GRID_GAP} ${ROWS * GRID_GAP}`}
-      preserveAspectRatio="xMidYMid slice"
-    >
-      {dots.map((dot) => (
-        <Dot
-          key={dot.idx}
-          cx={dot.cx}
-          cy={dot.cy}
-          idx={dot.idx}
-          cursorX={cursorX}
-          cursorY={cursorY}
-          elWidth={elWidth}
-          elHeight={elHeight}
-        />
-      ))}
-    </svg>
+    <div className="grid grid-cols-3 gap-2 h-full">
+      {columns.map((col) => {
+        const tasks = DEMO_TASKS.filter((t) => t.status === col.status);
+        return (
+          <div
+            key={col.status}
+            className="rounded-lg bg-secondary/80 p-2 flex flex-col overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-0.5 mb-1.5">
+              <span className="text-[10px] font-semibold">{col.label}</span>
+              <span className="text-[9px] text-muted-foreground">
+                {tasks.length}
+              </span>
+            </div>
+            <div className="flex-1 flex flex-col gap-1 overflow-hidden">
+              {tasks.map((task) => (
+                <Card
+                  key={task.id}
+                  className="border-0 bg-card shadow-sm rounded-md py-0 gap-0 overflow-hidden"
+                >
+                  {task.cover && (
+                    <div
+                      className="w-full h-1.5"
+                      style={{ backgroundColor: task.cover.value }}
+                    />
+                  )}
+                  <div className="p-2 pt-1.5">
+                    <CardHeader className="p-0 gap-0">
+                      <CardTitle className="text-[10px] font-medium leading-tight truncate text-start">
+                        {task.title}
+                      </CardTitle>
+                    </CardHeader>
+                    {task.dueDate && (
+                      <p className="text-[8px] text-muted-foreground flex items-center gap-0.5 mt-1">
+                        <Clock className="size-2" />
+                        {task.dueDate}
+                      </p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+              <div className="flex items-center gap-0.5 text-[9px] text-muted-foreground/50 px-0.5 mt-auto pt-0.5">
+                <PlusIcon className="size-2.5" />
+                Add Task
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
-const Dot = React.memo(
-  ({
-    cx,
-    cy,
-    idx,
-    cursorX,
-    cursorY,
-    elWidth,
-    elHeight,
-  }: {
-    cx: number;
-    cy: number;
-    idx: number;
-    cursorX: ReturnType<typeof useMotionValue<number>>;
-    cursorY: ReturnType<typeof useMotionValue<number>>;
-    elWidth: number;
-    elHeight: number;
-  }) => {
-    const svgWidth = COLS * GRID_GAP;
-    const svgHeight = ROWS * GRID_GAP;
+// --- Mini List View ---
+const MiniList = () => {
+  const groups = [
+    { status: "todo" as const, label: "To Do" },
+    { status: "in-progress" as const, label: "In Progress" },
+    { status: "done" as const, label: "Done" },
+  ];
 
-    const dist = useTransform(
-      [cursorX, cursorY],
-      ([mx, my]: number[]) => {
-        if (mx < 0 && my < 0) return 999;
-        const svgCursorX = (mx / (elWidth || svgWidth)) * svgWidth;
-        const svgCursorY = (my / (elHeight || svgHeight)) * svgHeight;
-        const dx = svgCursorX - cx;
-        const dy = svgCursorY - cy;
-        return Math.sqrt(dx * dx + dy * dy);
-      }
-    );
+  return (
+    <div className="space-y-2.5 h-full overflow-hidden">
+      {groups.map((group) => {
+        const tasks = DEMO_TASKS.filter((t) => t.status === group.status);
+        const config = getStatusConfig(group.status);
+        if (tasks.length === 0) return null;
+        return (
+          <div key={group.status}>
+            <div
+              className={`flex items-center gap-1.5 py-1 px-2 rounded-md ${config.bg} ${config.border} border shadow-sm mb-1`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+              />
+              <span className={`text-[10px] font-bold ${config.color}`}>
+                {group.label}
+                <span className="ml-1 opacity-50 font-medium">
+                  ({tasks.length})
+                </span>
+              </span>
+            </div>
+            <div className="ml-4 border-l-2 border-muted/30 pl-3 space-y-1">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-2 rounded-md border bg-card shadow-sm"
+                  style={
+                    task.cover
+                      ? { borderLeftWidth: 3, borderLeftColor: task.cover.value }
+                      : {}
+                  }
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[8px] font-bold text-muted-foreground/60">
+                      {task.key}
+                    </span>
+                    <span className="text-[10px] font-medium">
+                      {task.title}
+                    </span>
+                  </div>
+                  {task.dueDate && (
+                    <span className="text-[8px] text-muted-foreground bg-muted/30 px-1.5 py-0.5 rounded-full border">
+                      {task.dueDate}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
-    const proximity = useTransform(dist, [0, INFLUENCE_RADIUS * 3], [1, 0]);
-    const scale = useTransform(proximity, [0, 1], [1, 2.2]);
-    const opacity = useTransform(proximity, [0, 1], [0.06, 0.35]);
-
-    const breatheDelay = (idx % 7) * 0.8 + (idx % 3) * 1.2;
-
-    return (
-      <motion.circle
-        cx={cx}
-        cy={cy}
-        r={DOT_RADIUS}
-        className="fill-primary"
-        style={{
-          scale,
-          opacity,
-          transformOrigin: `${cx}px ${cy}px`,
-        }}
-        animate={{
-          opacity: [0.04, 0.1, 0.04],
-        }}
-        transition={{
-          duration: 4 + (idx % 3),
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: breatheDelay,
-        }}
-      />
-    );
-  }
+// --- Mini Table View ---
+const MiniTable = () => (
+  <div className="overflow-hidden rounded-md border h-full">
+    <table className="w-full text-[10px]">
+      <thead className="bg-muted/50">
+        <tr className="border-b">
+          <th className="px-2.5 py-1.5 text-left font-medium text-muted-foreground">
+            ID
+          </th>
+          <th className="px-2.5 py-1.5 text-left font-medium text-muted-foreground">
+            Task
+          </th>
+          <th className="px-2.5 py-1.5 text-left font-medium text-muted-foreground">
+            Status
+          </th>
+          <th className="px-2.5 py-1.5 text-left font-medium text-muted-foreground">
+            Due Date
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {DEMO_TASKS.map((task) => {
+          const config = getStatusConfig(task.status);
+          return (
+            <tr
+              key={task.id}
+              className="border-b border-border/30 hover:bg-muted/30 transition-colors"
+            >
+              <td className="px-2.5 py-1.5 font-mono text-muted-foreground">
+                {task.key}
+              </td>
+              <td className="px-2.5 py-1.5 font-medium">{task.title}</td>
+              <td className="px-2.5 py-1.5">
+                <Badge
+                  className={`font-medium text-[8px] border-transparent ${config.badgeClass} px-1.5 py-0`}
+                >
+                  {getStatusLabel(task.status)}
+                </Badge>
+              </td>
+              <td className="px-2.5 py-1.5 text-muted-foreground">
+                {task.dueDate || "-"}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
 );
-Dot.displayName = "Dot";
 
-const FloatingCard = ({
-  children,
-  className,
-  floatY = [-6, 6],
-  floatRotate = [0.5, -0.5],
-  duration = 7,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  floatY?: [number, number];
-  floatRotate?: [number, number];
-  duration?: number;
-  delay?: number;
-}) => {
+// --- Mini Calendar View ---
+const MiniCalendar = () => {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const calendarDays = Array.from({ length: 28 }, (_, i) => i + 1);
+
+  const taskDayMap: Record<number, (typeof DEMO_TASKS)[number][]> = {
+    3: [DEMO_TASKS[0]],
+    5: [DEMO_TASKS[1]],
+    8: [DEMO_TASKS[2]],
+    10: [DEMO_TASKS[3]],
+    12: [DEMO_TASKS[4]],
+    15: [DEMO_TASKS[5]],
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{
-        opacity: 1,
-        scale: 1,
-        y: [floatY[0], floatY[1], floatY[0]],
-        rotate: [floatRotate[0], floatRotate[1], floatRotate[0]],
-      }}
-      transition={{
-        opacity: { duration: 0.5, delay: 0.8 + delay },
-        scale: { duration: 0.5, delay: 0.8 + delay, type: "spring" },
-        y: { duration, repeat: Infinity, ease: "easeInOut", delay: 0.8 + delay },
-        rotate: { duration, repeat: Infinity, ease: "easeInOut", delay: 0.8 + delay },
-      }}
-      whileHover={{
-        scale: 1.05,
-        y: floatY[0] - 8,
-        transition: {
-          type: "spring",
-          stiffness: 300,
-          damping: 20,
-        },
-      }}
-      className={`cursor-default rounded-lg border border-border/50 bg-card/80 p-3 shadow-xl transition-colors duration-300 hover:border-primary/50 hover:shadow-primary/10 ${className ?? ""}`}
-    >
-      {children}
-    </motion.div>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[11px] font-bold">June 2026</span>
+        <div className="flex gap-1">
+          <div className="px-2 py-0.5 rounded text-[9px] bg-secondary text-muted-foreground">
+            Today
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 gap-0">
+        {days.map((d) => (
+          <div
+            key={d}
+            className="text-[8px] font-semibold text-muted-foreground text-center py-1"
+          >
+            {d}
+          </div>
+        ))}
+        {calendarDays.map((day) => {
+          const tasks = taskDayMap[day];
+          const isToday = day === 10;
+          return (
+            <div
+              key={day}
+              className={`p-0.5 min-h-[28px] border-t border-border/20 ${isToday ? "bg-primary/5" : ""
+                }`}
+            >
+              <span
+                className={`text-[8px] flex items-center justify-center w-4 h-4 rounded-full ${isToday
+                  ? "bg-primary text-primary-foreground font-bold"
+                  : "text-muted-foreground"
+                  }`}
+              >
+                {day}
+              </span>
+              {tasks?.map((task) => {
+                const config = getStatusConfig(task.status);
+                return (
+                  <div
+                    key={task.id}
+                    className={`mt-0.5 text-[6px] px-1 py-0.5 rounded truncate font-medium ${config.bg} ${config.color}`}
+                  >
+                    {task.title.split(" ").slice(0, 2).join(" ")}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
-export const HeroSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [elSize, setElSize] = React.useState({ w: 0, h: 0 });
-  const cursorX = useMotionValue(-1);
-  const cursorY = useMotionValue(-1);
+const viewComponents: Record<ViewKey, React.ReactNode> = {
+  kanban: <MiniKanban />,
+  list: <MiniList />,
+  table: <MiniTable />,
+  calendar: <MiniCalendar />,
+};
 
-  React.useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new ResizeObserver(() => {
-      setElSize({ w: el.offsetWidth, h: el.offsetHeight });
-    });
-    obs.observe(el);
-    setElSize({ w: el.offsetWidth, h: el.offsetHeight });
-    return () => obs.disconnect();
-  }, []);
+const viewTransition = {
+  initial: { opacity: 0, y: 8, filter: "blur(2px)" },
+  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+  exit: { opacity: 0, y: -8, filter: "blur(2px)" },
+  transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+};
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      cursorX.set(e.clientX - rect.left);
-      cursorY.set(e.clientY - rect.top);
+export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
+  const [activeView, setActiveView] = useState<ViewKey>("kanban");
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setActiveView((prev) => {
+        const keys: ViewKey[] = ["kanban", "list", "table", "calendar"];
+        const idx = keys.indexOf(prev);
+        return keys[(idx + 1) % keys.length];
+      });
+    }, VIEW_CYCLE_MS);
+    return () => clearInterval(timer);
+  }, [isPaused]);
+
+  const handleViewClick = useCallback(
+    (view: ViewKey) => {
+      setActiveView(view);
+      setIsPaused(true);
+      setTimeout(() => setIsPaused(false), VIEW_CYCLE_MS * 2);
     },
-    [cursorX, cursorY]
+    []
   );
 
-  const handleMouseLeave = useCallback(() => {
-    cursorX.set(-1);
-    cursorY.set(-1);
-  }, [cursorX, cursorY]);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 40, stiffness: 150, mass: 0.5 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+
+  const rotateX = useTransform(smoothMouseY, [-400, 400], [5, -5]);
+  const rotateY = useTransform(smoothMouseX, [-400, 400], [-5, 5]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // Ensure window is defined (SSR safe)
+    if (typeof window !== "undefined") {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      const x = clientX - innerWidth / 2;
+      const y = clientY - innerHeight / 2;
+      mouseX.set(x);
+      mouseY.set(y);
+    }
+  }, [mouseX, mouseY]);
+
+  const headlineWords = HERO_HEADLINE.split(/(\s+|\n)/).filter(Boolean);
 
   return (
-    <Section className="relative min-h-screen pt-32">
-      <div
-        ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="pointer-events-auto absolute inset-0 overflow-hidden"
-      >
-        <ParticleField cursorX={cursorX} cursorY={cursorY} elWidth={elSize.w} elHeight={elSize.h} />
-      </div>
-
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.015]"
+    <Section
+      className="relative min-h-screen pt-28 pb-8 overflow-hidden perspective-[2000px]"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => { mouseX.set(0); mouseY.set(0); }}
+    >
+      <InteractiveDotGrid />
+      {/* Interactive Spotlight */}
+      <motion.div
+        className="pointer-events-none absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[800px] h-[600px] sm:h-[800px] bg-primary/20 rounded-full blur-[100px] sm:blur-[120px] z-0 opacity-40 mix-blend-screen"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
+          x: smoothMouseX,
+          y: smoothMouseY,
         }}
       />
+
+      {/* Gradient orb backgrounds */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/[0.04] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/[0.03] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 flex flex-col items-center text-center">
-        <h1 className="mt-12 mb-6 flex max-w-4xl flex-wrap items-center justify-center gap-x-2 sm:gap-x-3 gap-y-1 text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
-          {HERO_WORDS.map((word, i) => (
-            <motion.span
-              key={`${word}-${i}`}
-              custom={i}
-              variants={wordVariants}
-              initial="hidden"
-              animate="visible"
-              className={word === "Flow," ? "text-primary" : ""}
-            >
-              {word}
-            </motion.span>
-          ))}
+        <h1 className="mt-8 mb-6 flex max-w-3xl flex-wrap items-center justify-center gap-x-2 sm:gap-x-3 gap-y-0 text-4xl leading-[1.1] font-semibold tracking-tighter md:text-6xl lg:text-7xl">
+          {headlineWords.map((word, i) =>
+            word === "\n" ? (
+              <span key={`br-${i}`} className="basis-full h-0" />
+            ) : (
+              <motion.span
+                key={`${word}-${i}`}
+                custom={i}
+                variants={{
+                  hidden: { opacity: 0, y: 24, filter: "blur(4px)" },
+                  visible: (idx: number) => ({
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    transition: {
+                      delay: idx * 0.06,
+                      duration: 0.5,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                    },
+                  }),
+                }}
+                initial="hidden"
+                animate="visible"
+                className={
+                  word === "flow."
+                    ? "text-primary"
+                    : ""
+                }
+              >
+                {word}
+              </motion.span>
+            )
+          )}
         </h1>
 
         <motion.p
@@ -257,11 +397,9 @@ export const HeroSection = () => {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          className="mb-10 max-w-2xl px-4 text-sm leading-relaxed text-muted-foreground md:text-lg"
+          className="mb-8 max-w-xl px-4 text-sm leading-relaxed text-muted-foreground md:text-[15px]"
         >
-          A lightning-fast, sleek productivity board inspired by Linear. No
-          heavy database setups—100% private and secured right in your Local
-          Storage.
+          {HERO_SUBTITLE}
         </motion.p>
 
         <motion.div
@@ -269,268 +407,143 @@ export const HeroSection = () => {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
+          className="flex items-center gap-3"
         >
           <Button
-            asChild
             size="lg"
-            className="gap-2 px-6 sm:px-8 text-xs sm:text-sm shadow-lg shadow-primary/20"
+            className="gap-2 px-6 sm:px-8 text-xs sm:text-sm shadow-lg shadow-primary/20 cursor-pointer"
+            onClick={onLaunchApp}
           >
-            <Link href="/app" target="_blank" rel="noopener noreferrer">
-              Get Started
-              <ArrowRight className="size-4" />
-            </Link>
+            Start Building
+            <ArrowRight className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="gap-2 px-5 sm:px-6 text-xs sm:text-sm cursor-pointer"
+            asChild
+          >
+            <a href="#views">
+              <Play className="size-3.5" />
+              See it in action
+            </a>
           </Button>
         </motion.div>
 
-        <div className="relative mt-16 sm:mt-20 w-[90vw] sm:w-full max-w-5xl overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
-          <div className="min-w-[850px] lg:min-w-0">
-            <motion.div
-              custom={2}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              whileHover={{
-                scale: 1.02,
-                y: -10,
-                transition: { type: "spring", stiffness: 300, damping: 20 },
-              }}
-              className="rounded-xl border border-border/50 bg-card/60 p-1 shadow-2xl shadow-black/10 transition-colors duration-300 hover:border-primary/50 hover:shadow-primary/10"
-            >
-              <div className="rounded-lg border border-border/30 bg-card overflow-hidden">
-                <div className="flex items-center gap-2 border-b border-border/30 bg-muted/30 px-4 py-2.5">
-                  <div className="flex gap-1.5">
-                    <div className="size-2.5 rounded-full bg-red-400/60" />
-                    <div className="size-2.5 rounded-full bg-amber-400/60" />
-                    <div className="size-2.5 rounded-full bg-emerald-400/60" />
+        <motion.div
+          custom={2}
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          className="relative mt-14 sm:mt-16 w-full max-w-4xl perspective-[2000px]"
+        >
+          <motion.div
+            style={{ rotateX, rotateY }}
+            className="rounded-xl border border-border/40 bg-card/60 p-1 shadow-2xl shadow-black/[0.08] dark:shadow-black/30"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <div className="rounded-lg border border-border/20 bg-card overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-border/20 bg-muted/20 px-3.5 py-2">
+                <div className="flex gap-1.5">
+                  <div className="size-2 rounded-full bg-red-400/50" />
+                  <div className="size-2 rounded-full bg-amber-400/50" />
+                  <div className="size-2 rounded-full bg-emerald-400/50" />
+                </div>
+                <div className="ml-2 flex h-5 w-40 sm:w-56 items-center rounded-md bg-background/60 px-2.5">
+                  <span className="text-[9px] text-muted-foreground">
+                    flowboard.app
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-background px-4 pt-3 pb-0">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">🚀</span>
+                    <span className="text-xs font-bold">Product Launch</span>
+                    <Badge variant="secondary" className="text-[9px] h-4 px-1.5">
+                      {DEMO_TASKS.length} tasks
+                    </Badge>
                   </div>
-                  <div className="ml-2 sm:ml-4 flex h-6 w-32 sm:w-64 items-center rounded-md bg-background/60 px-2 sm:px-3">
-                    <span className="text-[10px] text-muted-foreground truncate">
-                      flowboard.app/app
+                  <div className="flex h-6 w-28 items-center rounded-md border border-border/40 bg-secondary/30 px-2">
+                    <SearchIcon className="size-2.5 text-muted-foreground mr-1" />
+                    <span className="text-[9px] text-muted-foreground">
+                      Search...
                     </span>
                   </div>
                 </div>
-                <div className="flex" style={{ height: 340 }}>
-                  <div className="hidden w-72 shrink-0 bg-secondary/30 p-1.5 md:flex">
-                    <div className="flex w-14 shrink-0 flex-col items-center gap-3 py-1.5 pr-1.5">
-                      <div>
-                        <Image
-                          src="/logo.svg"
-                          alt="Flowboard"
-                          width={22}
-                          height={22}
+
+                <div className="flex items-center gap-0.5 border-b border-border/20 -mx-4 px-4">
+                  {VIEW_TABS.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeView === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        onClick={() => handleViewClick(tab.key)}
+                        className={`relative flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-medium transition-colors cursor-pointer ${isActive
+                          ? "text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                          }`}
+                      >
+                        <Icon
+                          className={`size-3 ${isActive ? "text-primary" : ""}`}
                         />
-                      </div>
-                      <div className="flex flex-col items-center gap-2 mt-1">
-                        <div className="p-2 rounded-lg hover:bg-accent flex flex-col align-middle justify-center text-[0.75rem] gap-1.5 font-medium items-center bg-background cursor-pointer">
-                          <Clipboard className="size-4 text-foreground/70" />
-                          Boards
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex-1 p-3 overflow-hidden bg-background rounded-lg border border-border/30 shadow-sm">
-                      <div className="flex h-8 items-center rounded-md bg-secondary/50 px-2.5 mb-3 border border-border/30">
-                        <SearchIcon className="size-3.5 text-muted-foreground mr-2" />
-                        <span className="text-[11px] text-muted-foreground">
-                          Search boards...
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-start text-muted-foreground mb-2 px-1 font-medium">
-                        + Add Board
-                      </div>
-                      <div className="text-[9px] text-start tracking-wider text-muted-foreground/60 mb-2 px-1 mt-3">
-                        Favorites
-                      </div>
-                      {[
-                        { emoji: "🚀", name: "Product Launch", active: true },
-                        { emoji: "💡", name: "Ideas Backlog", active: false },
-                      ].map((b) => (
-                        <div
-                          key={b.name}
-                          className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] mb-0.5 ${b.active
-                            ? "bg-secondary font-medium text-foreground"
-                            : "text-muted-foreground hover:bg-secondary/50"
-                            }`}
-                        >
-                          <span>{b.emoji}</span>
-                          <span className="truncate">{b.name}</span>
-                        </div>
-                      ))}
-                      <div className="text-[9px] text-start tracking-wider text-muted-foreground/60 mb-2 px-1 mt-3">
-                        All Boards
-                      </div>
-                      {[
-                        { emoji: "📈", name: "Marketing Q3" },
-                        { emoji: "⚙️", name: "Infrastructure" },
-                        { emoji: "📚", name: "Knowledge Base" },
-                      ].map((b) => (
-                        <div
-                          key={b.name}
-                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] text-muted-foreground mb-0.5 hover:bg-secondary/50"
-                        >
-                          <span>{b.emoji}</span>
-                          <span className="truncate">{b.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                        <span className="hidden sm:inline">{tab.label}</span>
+                        {isActive && (
+                          <motion.div
+                            layoutId="hero-view-tab"
+                            className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full"
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 30,
+                            }}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
 
-                  <div className="flex-1 overflow-hidden p-4 bg-background">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-7 items-center justify-center rounded-md bg-secondary text-sm">
-                          🚀
-                        </div>
-                        <span className="text-sm font-bold">Product Launch</span>
-                        <Star className="size-3.5 text-amber-400 fill-amber-400" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 border-b border-border/30 mb-3 pb-2">
-                      <div className="flex items-center gap-1.5 text-primary text-[11px] font-medium px-2 py-1 border-b-2 border-primary">
-                        <SquareKanban className="size-3.5" />
-                        Kanban
-                      </div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] px-2 py-1">
-                        <List className="size-3.5" />
-                        List
-                      </div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] px-2 py-1">
-                        <Table2 className="size-3.5" />
-                        Table
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <div className="flex h-7 w-32 sm:w-48 items-center rounded-md border border-border/50 bg-secondary/30 px-2.5">
-                        <SearchIcon className="size-3 text-muted-foreground mr-1.5 shrink-0" />
-                        <span className="text-[10px] text-muted-foreground truncate">Filter tasks...</span>
-                      </div>
-                      <div className="flex h-7 items-center justify-center rounded-md border border-border/50 bg-secondary/30 px-2.5 text-[10px] text-muted-foreground font-medium">
-                        All
-                      </div>
-                      <div className="flex h-7 items-center justify-center rounded-md border border-border/50 bg-secondary/30 px-2.5 text-[10px] text-muted-foreground font-medium">
-                        Today
-                      </div>
-                      <div className="flex h-7 items-center justify-center rounded-md border border-border/50 bg-secondary/30 px-2.5 text-[10px] text-muted-foreground font-medium">
-                        Overdue
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2.5 h-[calc(100%-120px)]">
-                      {(
-                        [
-                          { status: "todo", label: "To do" },
-                          { status: "in-progress", label: "Doing" },
-                          { status: "done", label: "Done" },
-                        ] as const
-                      ).map((col, colIdx) => {
-                        const tasks = DEMO_TASKS.filter(
-                          (t) => t.status === col.status
-                        );
-                        return (
-                          <div
-                            key={col.status}
-                            className="rounded-lg bg-secondary p-2 flex flex-col overflow-hidden"
-                          >
-                            <div className="flex items-center justify-between px-1 mb-2">
-                              <span className="text-[11px] font-medium text-start">
-                                {col.label}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground">
-                                {tasks.length}
-                              </span>
-                            </div>
-                            <div className="flex-1 flex flex-col gap-1.5 overflow-hidden">
-                              {tasks.map((task, taskIdx) => (
-                                <Card key={task.id} className="border-0 bg-card shadow-sm rounded-lg py-0 gap-0 overflow-hidden">
-                                  {task.cover && (
-                                    <div
-                                      className="w-full h-3 max-h-3"
-                                      style={{
-                                        backgroundColor: task.cover.value,
-                                      }}
-                                    />
-                                  )}
-                                  <div className="p-2.5 pt-2">
-                                    <CardHeader className="p-0 gap-0">
-                                      <CardTitle className="text-[11px] font-medium leading-tight truncate text-start">
-                                        {task.title}
-                                      </CardTitle>
-                                    </CardHeader>
-                                    {task.dueDate && (
-                                      <CardDescription className="text-[9px] flex items-center gap-1 mt-1.5">
-                                        <Clock className="size-2.5" />
-                                        {task.dueDate}
-                                      </CardDescription>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60 px-1 mt-auto pt-1">
-                                <PlusIcon className="size-3" />
-                                Add New Task
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    {VIEW_TABS.map((tab) => (
+                      <div
+                        key={tab.key}
+                        className={`w-1 h-1 rounded-full transition-colors duration-300 ${activeView === tab.key
+                          ? "bg-primary"
+                          : "bg-muted-foreground/20"
+                          }`}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </div>
 
-          <FloatingCard
-            className="absolute -right-4 -bottom-6 hidden md:block"
-            floatY={[-5, 5]}
-            floatRotate={[0.5, 1.5]}
-            duration={7}
-            delay={0}
-          >
-            <div className="flex items-center gap-2 text-xs">
-              <BarChart3 className="size-4 text-primary" />
-              <span className="font-medium">Progress</span>
+              <div className="p-3 bg-background" style={{ minHeight: 280 }}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeView}
+                    {...viewTransition}
+                    className="h-full"
+                    style={{ minHeight: 260 }}
+                  >
+                    {viewComponents[activeView]}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
-            <div className="mt-2 flex gap-1">
-              {[60, 80, 45, 90, 70].map((h, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ height: 0 }}
-                  animate={{ height: h * 0.3 }}
-                  transition={{
-                    delay: 1 + i * 0.1,
-                    duration: 0.6,
-                    ease: "backOut",
-                  }}
-                  className="w-3 rounded-sm bg-primary/80"
-                />
-              ))}
-            </div>
-          </FloatingCard>
+          </motion.div>
 
-          <FloatingCard
-            className="absolute -bottom-4 -left-4 hidden md:block"
-            floatY={[-4, 6]}
-            floatRotate={[-0.5, -1.5]}
-            duration={8}
-            delay={0.8}
-          >
-            <div className="flex items-center gap-2 text-xs">
-              <CheckCircle2 className="size-4 text-primary" />
-              <span className="font-medium">2 tasks done</span>
-            </div>
-            <div className="mt-1.5 h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-              <motion.div
-                initial={{ width: "0%" }}
-                animate={{ width: "29%" }}
-                transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
-                className="h-full rounded-full bg-primary"
-              />
-            </div>
-          </FloatingCard>
-        </div>
+          <motion.div
+            className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
+            style={{
+              background: useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(var(--primary-rgb), 0.15), transparent 80%)`,
+            }}
+          />
 
+          <div className="absolute -inset-4 bg-primary/[0.03] rounded-2xl blur-2xl -z-10 pointer-events-none" />
+        </motion.div>
       </div>
     </Section>
   );

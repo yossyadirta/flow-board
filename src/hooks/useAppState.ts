@@ -1,12 +1,18 @@
 "use client";
 
-import { useContext } from "react";
-import { AppContext } from "../context/AppContext";
+import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 
 export const useAppState = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) {
-    throw new Error("useAppState must be used inside AppProvider");
-  }
-  return ctx;
+  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
+
+  return {
+    state: {
+      isFetching: isFetching > 0,
+      isMutating: isMutating > 0,
+      boards: {},
+      tasks: {},
+    },
+    dispatch: () => {},
+  };
 };

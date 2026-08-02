@@ -3,12 +3,20 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Board } from "@/types/board";
 import { OptionDropdown } from "@/components/ui/option-dropdown";
 import { ModalState } from "@/types/state";
-import { Star } from "lucide-react";
+import { Star, UserPlus } from "lucide-react";
+import { BoardActivitySheet } from "@/components/app/board/BoardActivitySheet";
+import { ShareBoardModal } from "@/components/app/board/ShareBoardModal";
+import { useBoardMembers } from "@/hooks/useBoardMembers";
+import { usePresence } from "@/hooks/usePresence";
+import { supabase } from "@/lib/supabase";
+import { Task } from "@/types/task";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Props = {
   derived: {
     emoji: string;
     currentBoard: Board | null;
+    recentTasks: Task[];
   };
   mounted: boolean;
   modalState: ModalState;
@@ -26,6 +34,32 @@ const BoardHeader = ({
   onToggleFavorite,
   isFavorite,
 }: Props) => {
+  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
+  const [isGuest, setIsGuest] = React.useState(false);
+  const [showShareModal, setShowShareModal] = React.useState(false);
+
+  React.useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id || null);
+      setIsGuest(data.user?.is_anonymous || !data.user?.email);
+    });
+  }, []);
+
+  const { members } = useBoardMembers(derived.currentBoard?.id || "");
+  const { onlineUsers } = usePresence(derived.currentBoard?.id || "", currentUserId);
+
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.user_id === currentUserId) return -1;
+    if (b.user_id === currentUserId) return 1;
+    if (a.role === "owner" && b.role !== "owner") return -1;
+    if (b.role === "owner" && a.role !== "owner") return 1;
+    return 0;
+  });
+
+  const maxDisplay = 4;
+  const displayMembers = sortedMembers.slice(0, maxDisplay);
+  const extraMembers = Math.max(0, sortedMembers.length - maxDisplay);
+
   return (
     <div className="pt-6 pb-4">
       <div className="flex justify-between align-top">
@@ -39,7 +73,8 @@ const BoardHeader = ({
             {derived.currentBoard?.name ?? ""}
           </h3>
         </div>
-        <div className="flex">
+        <div className="flex items-center gap-2">
+          <BoardActivitySheet recentTasks={derived.recentTasks} />
           <button
             onClick={() => {
               if (derived.currentBoard?.id) {
@@ -49,13 +84,77 @@ const BoardHeader = ({
             className="rounded-md transition-colors cursor-pointer"
           >
             <Star
-              className={`h-4 w-4 transition-colors ${
-                isFavorite
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-muted-foreground"
-              }`}
+              className={`h-4 w-4 transition-colors ${isFavorite
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-muted-foreground"
+                }`}
             />
           </button>
+
+          <div className="h-4 w-px bg-slate-200 dark:bg-zinc-800 mx-1"></div>
+
+          <TooltipProvider delayDuration={100}>
+            <div className="flex items-center -space-x-2 mr-1">
+              {displayMembers.map((member, i) => {
+                const isMe = currentUserId === member.user_id;
+                const displayName = member.profiles?.name || "";
+                const displayEmail = member.profiles?.email || "";
+                const avatarInitial = displayName ? displayName.charAt(0).toUpperCase() : displayEmail.charAt(0).toUpperCase() || "?";
+
+                return (
+                  <Tooltip key={member.user_id}>
+                    <TooltipTrigger asChild>
+                      <div className="relative" style={{ zIndex: 10 - i }}>
+                        <Avatar
+                          className="w-7 h-7 border-2 border-background shadow-sm cursor-pointer"
+                        >
+                          <AvatarFallback
+                            className="text-white text-[10px]"
+                            style={{ backgroundColor: member.profiles?.bg_color || "#9CA3AF" }}
+                          >
+                            {avatarInitial}
+                          </AvatarFallback>
+                        </Avatar>
+                        {onlineUsers.has(member.user_id) && (
+                          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full" />
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="flex flex-col gap-0.5">
+                      <span className="font-semibold">{displayName || displayEmail} {isMe && "(You)"}</span>
+                      {displayEmail && <span className="text-xs text-muted-foreground">{displayEmail}</span>}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+              {extraMembers > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 border-2 border-background flex items-center justify-center text-[10px] font-medium text-muted-foreground relative cursor-pointer"
+                      style={{ zIndex: 0 }}
+                    >
+                      +{extraMembers}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span>{extraMembers} more member{extraMembers > 1 ? "s" : ""}</span>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </TooltipProvider>
+
+          {!isGuest && (
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors cursor-pointer text-xs font-medium mr-1"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Share
+            </button>
+          )}
+
           <OptionDropdown
             open={modalState.type === "option-board"}
             onOpenChange={() => {
@@ -94,6 +193,16 @@ const BoardHeader = ({
           />
         </div>
       </div>
+
+      {derived.currentBoard && (
+        <ShareBoardModal
+          open={showShareModal}
+          onOpenChange={setShowShareModal}
+          boardId={derived.currentBoard.id}
+          currentUserId={currentUserId}
+          boardOwnerId={derived.currentBoard.owner_id || null}
+        />
+      )}
     </div>
   );
 };

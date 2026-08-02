@@ -40,7 +40,7 @@ const BoardMenuItem = ({ item, pathname, isFavoriteSection }: Props) => {
 
   const closeModal = () => setModalState({ type: null });
 
-  const href = `/app/${item.key}`;
+  const href = `/app/board/${item.key}`;
   const isActive = pathname === href && (isFavoriteSection || !item.isFavorite);
   const { emoji } =
     BOARD_ICONS_MAP[

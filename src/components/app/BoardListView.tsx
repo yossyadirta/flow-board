@@ -36,6 +36,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { cn, formatDueDate } from "@/lib/utils";
 import { Task } from "@/types/task";
@@ -341,6 +342,24 @@ const TaskListItem = ({
       </div>
 
       <div className="flex items-center gap-3 shrink-0 pl-4">
+        {task.assignee && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Avatar className="w-6 h-6 border border-background shadow-sm shrink-0">
+                <AvatarFallback 
+                  className="text-white text-[10px]"
+                  style={{ backgroundColor: task.assignee.bg_color || "#9CA3AF" }}
+                >
+                  {task.assignee.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span className="text-xs">Assigned to {task.assignee.name}</span>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
         {task.dueDate && (
           <div className="flex items-center text-[11px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full border">
             <CalendarIcon className="mr-1.5 h-3 w-3" />

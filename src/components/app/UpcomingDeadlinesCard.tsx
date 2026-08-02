@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Board } from "@/types/board";
 import { Task } from "@/types/task";
+import { cn } from "@/lib/utils";
 
 interface UpcomingDeadlinesCardProps {
   hasUpcomingTasks: boolean;
   upcomingTasks: Task[];
   boards: Board[];
   getBoardName: (id: string) => string;
+  className?: string;
 }
 
 export function UpcomingDeadlinesCard({
@@ -19,14 +21,14 @@ export function UpcomingDeadlinesCard({
   upcomingTasks,
   boards,
   getBoardName,
+  className,
 }: UpcomingDeadlinesCardProps) {
   const router = useRouter();
 
   return (
-    <Card className="flex flex-col shadow-sm border-slate-200/60 dark:border-slate-800 bg-gradient-linear-to-b from-transparent to-slate-50/30 dark:to-slate-900/30 xl:flex-1 xl:min-h-0 py-2 gap-4">
-      <CardHeader className="shrink-0 p-4 pl-8">
-        <CardTitle className="text-base md:text-lg flex items-center gap-2">
-          <Clock className="h-4 w-4 md:h-5 md:w-5 text-rose-500" />
+    <Card className={cn("flex flex-col border-0 shadow-none bg-card p-0 gap-0 h-full overflow-hidden", className)}>
+      <CardHeader className="shrink-0 px-3 pt-3 pb-2">
+        <CardTitle className="text-sm md:text-base flex items-center">
           Upcoming Deadlines
         </CardTitle>
       </CardHeader>
@@ -45,10 +47,10 @@ export function UpcomingDeadlinesCard({
                   key={task.id}
                   onClick={() =>
                     router.push(
-                      `/app/${boards.find((b) => b.id === task.boardId)?.key || task.boardId}`,
+                      `/app/board/${boards.find((b) => b.id === task.boardId)?.key || task.boardId}`,
                     )
                   }
-                  className="flex flex-col gap-1 p-4 border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  className="flex flex-col gap-1 px-3 py-2 border-b border-border/40 hover:bg-accent/50 transition-colors cursor-pointer group"
                 >
                   <div className="flex items-start justify-between">
                     <span className="font-medium text-xs md:text-sm group-hover:text-primary transition-colors truncate max-w-37.5 md:max-w-45">

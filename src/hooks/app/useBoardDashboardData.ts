@@ -38,8 +38,29 @@ export const useBoardDashboardData = () => {
   // Recent tasks logic
   const recentTasks = useMemo(() => {
     return [...mappedTasks]
-      .sort((a, b) => b.createdAt - a.createdAt)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5);
+  }, [mappedTasks]);
+
+  const totalTasks = mappedTasks.length;
+
+  const completedTasks = useMemo(
+    () => mappedTasks.filter((t) => t.status === "done").length,
+    [mappedTasks]
+  );
+
+  const inProgressTasks = useMemo(
+    () => mappedTasks.filter((t) => t.status === "in-progress").length,
+    [mappedTasks]
+  );
+
+  const overdueTasks = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return mappedTasks.filter((t) => {
+      if (t.status === "done" || !t.dueDate) return false;
+      return new Date(t.dueDate) < now;
+    }).length;
   }, [mappedTasks]);
 
   // Helper functions
@@ -77,5 +98,9 @@ export const useBoardDashboardData = () => {
     recentTasks,
     getBoardMetrics,
     getBoardName,
+    totalTasks,
+    completedTasks,
+    inProgressTasks,
+    overdueTasks,
   };
 };

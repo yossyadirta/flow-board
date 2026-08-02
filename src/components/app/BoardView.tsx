@@ -12,6 +12,7 @@ import {
   SearchIcon,
   SquareKanban,
   Table2,
+  CalendarDays,
   X,
 } from "lucide-react";
 import {
@@ -28,6 +29,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import BoardKanbanView from "./BoardKanbanView";
 import BoardTableView from "./BoardTableView";
 import BoardListView from "./BoardListView";
+import { TasksCalendarView } from "./task/TasksCalendarView";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -62,6 +64,7 @@ type Props = {
   modalState: ModalState;
   setModalState: (data: ModalState) => void;
   boardId: string;
+  isLoading: boolean;
 };
 
 const BoardColumns = ({
@@ -72,9 +75,9 @@ const BoardColumns = ({
   setModalState,
   boardId,
   actions,
+  isLoading,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { state } = useAppState();
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
@@ -118,6 +121,19 @@ const BoardColumns = ({
                 )}
               />
               Table
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="calendar"
+              className="flex items-center gap-2 cursor-pointer hover:foreground/80"
+            >
+              <CalendarDays
+                className={cn(
+                  "h-6 w-6",
+                  derived.view === "calendar" ? "text-primary" : "",
+                )}
+              />
+              Calendar
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -195,7 +211,7 @@ const BoardColumns = ({
         )}
       </div>
       <div className="flex-1 overflow-hidden">
-        {state.isFetching || state.isMutating ? (
+        {isLoading ? (
           <>
             {derived.view === "kanban" && <KanbanSkeleton />}
             {derived.view === "table" && <TableSkeleton />}
@@ -229,6 +245,16 @@ const BoardColumns = ({
                 modalState={modalState}
                 setModalState={setModalState}
                 boardId={boardId}
+              />
+            )}
+
+            {derived.view === "calendar" && (
+              <TasksCalendarView
+                tasks={derived.visibleTasks}
+                boards={derived.currentBoard ? [derived.currentBoard] : []}
+                onTaskClick={(task) => setModalState({ type: "edit-task", data: task })}
+                modalState={modalState}
+                setModalState={setModalState}
               />
             )}
           </>

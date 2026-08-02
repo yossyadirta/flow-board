@@ -3,75 +3,67 @@
   
   # 🚀 Flowboard
   
-  **A lightweight productivity app that empowers you to organize workflows seamlessly through versatile task boards, operating entirely via local storage for maximum speed.**
+  **One unified workspace. Four powerful views. Infinite flow.**
+  A modern, high-performance productivity application designed to organize workflows seamlessly. Built with a focus on speed, intuitive collaboration, and a premium user experience.
   
   [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
   [![TailwindCSS](https://img.shields.io/badge/Tailwind%20CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+  [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
   [![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-000000?style=for-the-badge&logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
 </div>
 
 <br />
 
 <div align="center">
-  <img src="public/readme_1.webp" alt="Flowboard App Preview 1" width="750" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 24px;">
+  <img src="public/readme_2.webp" alt="Flowboard Analytics Dashboard" width="750" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 24px;">
   <br />
-  <img src="public/readme_2.webp" alt="Flowboard App Preview 2" width="750" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 24px;">
-  <br />
-  <img src="public/readme_3.webp" alt="Flowboard App Preview 3" width="750" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+  <img src="public/readme_3.webp" alt="Flowboard Kanban Workspace" width="750" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
 </div>
 
 ---
 
-## ⚡ Main Philosophy: Local-First & Zero Latency
-Unlike traditional task management applications that rely on constant server communication, **Flowboard** is intentionally architected to be a **local-first** system. 
+## ✨ Key Features & Architecture
 
-- **Privacy by Default**: Your boards, descriptions, and tasks stay inside your browser. No third-party servers or databases.
-- **Zero Latency**: State updates occur instantly on the client, with data saved synchronously using browser `localStorage`.
-- **Dynamic Routing**: Built with Next.js dynamic routing (`/app/[boardId]`) so your boards are fully shareable, bookmarkable, and reload-proof.
+Flowboard is architected to deliver a premium, fluid experience from the moment users land on the marketing page to their day-to-day interactions within the workspace.
 
----
+### 🎨 1. Awwwards-Inspired Landing Page (`/`)
+The entry point of the application is a highly interactive, performance-optimized marketing page:
+- **Interactive Dot Grid:** A custom HTML5 Canvas particle system that reacts magnetically to mouse movements at 60fps.
+- **Framer Motion Choreography:** Smooth, orchestrated scroll animations and viewport-triggered transitions (Bento Grids, Feature Showcases).
+- **Premium Aesthetics:** Glassmorphism, subtle gradients, semantic typography, and custom UI components built to establish immediate trust and high product value.
 
-## 🖥️ Application Structure
-Flowboard is designed with two distinct interfaces to separate public-facing presentation from the actual productivity workspace.
+### 💼 2. The Core Workspace (`/app`)
+The core productivity engine, powered by a robust backend and optimistic UI updates:
+- **📊 Analytics Dashboard:** A comprehensive overview featuring real-time "Task Completion Charts," "Productivity Trends," and dynamic task summaries powered by Recharts.
+- **🗂️ Multi-Board Management:** Create, edit, and organize multiple independent boards with custom icons and favorite toggles.
+- **👁️ 4 Dynamic Task Views:** Instantly toggle between different visualization modes without reloading:
+  - **Kanban View:** A fluid drag-and-drop board powered by `@dnd-kit`.
+  - **List View:** A structured, compact layout for quick scanning.
+  - **Table View:** A dense, sortable data grid interface powered by `@tanstack/react-table`.
+  - **Calendar View:** A monthly calendar grid to track deadlines at a glance.
+- **✅ Global "My Tasks" Hub:** A dedicated page aggregating all tasks assigned to the user across all boards, filterable by due dates and status.
 
-1. **Landing Page (`/`)**
-   The entry point of the application. Designed to be a beautiful marketing page that introduces the core value of Flowboard before the user enters the workspace.
-   
-2. **The App Workspace (`/app`)**
-   The core productivity engine. This consists of:
-   - **Dashboard (`/app`)**: An overview featuring "Project Status", "Upcoming Deadlines", and "Recent Activity" widgets.
-   - **Board View (`/app/[boardId]`)**: The dedicated workspace for individual boards, equipped with multiple dynamic task views.
-
----
-
-## ✨ Features (Based on Deep Code Analysis)
-The application is built with a highly structured React Reducer engine to handle complex states safely without external libraries.
-
-- **🗂️ Multi-Board Management**: Create, edit, and organize multiple independent boards seamlessly.
-- **🎛️ 3 Dynamic Board Views**: Instantly toggle between different visualization modes:
-  - **Kanban View**: A classic drag-and-drop board powered by `@dnd-kit`.
-  - **List View**: A structured, vertical layout for quick scanning.
-  - **Table View**: A dense data grid interface powered by `@tanstack/react-table`.
-- **🎯 Advanced Task Handling**: 
-  - Assign task statuses and set priority levels.
-  - Pick due dates using the built-in Calendar widget.
-  - Visually distinguish tasks with beautiful cover images.
-  - Safe data input strictly validated using `react-hook-form` and `zod`.
-- **🌗 Premium Aesthetics & Dark Mode**: A meticulously crafted UI using `shadcn/ui` components and Tailwind CSS v4, complete with a seamless Light/Dark mode toggle.
+### ⚙️ 3. Backend & User Experience
+- **Supabase Integration:** Full authentication (Google OAuth & Email) and PostgreSQL database implementation.
+- **Real-time Optimistic Updates:** Client-side state updates instantly before server confirmation, ensuring a zero-latency feel.
+- **Interactive Onboarding:** A guided product tour using `react-joyride` with custom-styled Tooltips to educate new users seamlessly.
+- **Profile Customization:** Users can customize their Display Name and Avatar Color via a bespoke Settings Modal, synced directly with Supabase Profiles.
 
 ---
 
-## 🛠️ Built With
+## 🛠️ Tech Stack
 
-| Tech Stack | Purpose | Rationale |
+| Technology | Purpose | Rationale |
 | :--- | :--- | :--- |
-| **Next.js 16** | Core framework | App router support, optimization, and robust dynamic routing paths. |
-| **React 19** | Rendering & state | Client state architecture powered by standard React hooks and Reducers. |
-| **Tailwind CSS v4** | Styling system | Fast utilities, optimized performance, and modern CSS variables engine. |
-| **TypeScript** | Static typing | Complete type safety, discriminated union state actions, and self-documenting code. |
-| **shadcn/ui** | Component library | Beautifully designed, accessible components for a premium user experience. |
-| **@dnd-kit & TanStack** | Advanced UI | Drag-and-drop primitives and headless tables for complex data views. |
+| **Next.js 15** | Core Framework | App router architecture, dynamic routing (`/app/[boardId]`), and optimized rendering. |
+| **React 19** | Rendering & UI | Leveraging the latest React features for building responsive user interfaces. |
+| **Tailwind CSS v4** | Styling System | Rapid utility-first styling with modern CSS variables and native dark mode support. |
+| **TypeScript** | Static Typing | Complete end-to-end type safety, from database schemas to UI components. |
+| **Supabase** | Backend as a Service | Secure Auth, Postgres DB, and RLS (Row Level Security) policies. |
+| **Framer Motion** | Animations | Complex, physics-based UI animations, page transitions, and interactive scrolls. |
+| **shadcn/ui** | Component Library | Highly customizable, accessible UI primitives for a polished look. |
+| **@dnd-kit & TanStack**| Advanced UI Logic | Robust drag-and-drop primitives and headless tables for complex data structures. |
 
 ---
 
@@ -79,6 +71,7 @@ The application is built with a highly structured React Reducer engine to handle
 
 ### Prerequisites
 Make sure you have **Node.js** (v18+) and **npm** installed on your system.
+You will also need a **Supabase** project for the backend database and authentication.
 
 ### 1. Clone the Repository
 ```bash
@@ -91,7 +84,14 @@ cd flowboard
 npm install
 ```
 
-### 3. Run the Development Server
+### 3. Environment Variables
+Create a `.env.local` file in the root directory and add your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 4. Run the Development Server
 ```bash
 npm run dev
 ```
