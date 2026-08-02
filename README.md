@@ -27,11 +27,11 @@
 
 Flowboard is architected to deliver a premium, fluid experience from the moment users land on the marketing page to their day-to-day interactions within the workspace.
 
-### 🎨 1. Awwwards-Inspired Landing Page (`/`)
+### 🎨 1. Modern Landing Page (`/`)
 The entry point of the application is a highly interactive, performance-optimized marketing page:
-- **Interactive Dot Grid:** A custom HTML5 Canvas particle system that reacts magnetically to mouse movements at 60fps.
-- **Framer Motion Choreography:** Smooth, orchestrated scroll animations and viewport-triggered transitions (Bento Grids, Feature Showcases).
-- **Premium Aesthetics:** Glassmorphism, subtle gradients, semantic typography, and custom UI components built to establish immediate trust and high product value.
+- **Interactive Dot Grid:** A custom HTML5 Canvas particle system that reacts to mouse movements.
+- **Smooth Animations:** Orchestrated scroll animations and viewport-triggered transitions for UI components like Bento Grids and Feature Showcases.
+- **Modern UI Design:** Clean interface utilizing glassmorphism, subtle gradients, and semantic typography for a clear user experience.
 
 ### 💼 2. The Core Workspace (`/app`)
 The core productivity engine, powered by a robust backend and optimistic UI updates:
@@ -42,6 +42,7 @@ The core productivity engine, powered by a robust backend and optimistic UI upda
   - **List View:** A structured, compact layout for quick scanning.
   - **Table View:** A dense, sortable data grid interface powered by `@tanstack/react-table`.
   - **Calendar View:** A monthly calendar grid to track deadlines at a glance.
+- **🤝 Real-time Collaboration:** Share boards with team members, assign tasks, leave comments, and receive instant toast alerts and system notifications.
 - **✅ Global "My Tasks" Hub:** A dedicated page aggregating all tasks assigned to the user across all boards, filterable by due dates and status.
 
 ### ⚙️ 3. Backend & User Experience
@@ -62,6 +63,8 @@ The core productivity engine, powered by a robust backend and optimistic UI upda
 | **TypeScript** | Static Typing | Complete end-to-end type safety, from database schemas to UI components. |
 | **Supabase** | Backend as a Service | Secure Auth, Postgres DB, and RLS (Row Level Security) policies. |
 | **Framer Motion** | Animations | Complex, physics-based UI animations, page transitions, and interactive scrolls. |
+| **React Joyride** | User Onboarding | Creates guided, interactive product tours for new users navigating the workspace. |
+| **Recharts** | Data Visualization | Renders dynamic, responsive, and composable SVG charts for the Analytics Dashboard. |
 | **shadcn/ui** | Component Library | Highly customizable, accessible UI primitives for a polished look. |
 | **@dnd-kit & TanStack**| Advanced UI Logic | Robust drag-and-drop primitives and headless tables for complex data structures. |
 
