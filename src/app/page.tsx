@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { SocialProofSection } from "@/components/landing/SocialProofSection";
+import { CollabSection } from "@/components/landing/CollabSection";
 import { DemoSection } from "@/components/landing/DemoSection";
+import { DashboardPreview } from "@/components/landing/DashboardPreview";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { TechSection } from "@/components/landing/TechSection";
+import { TestimonialSection } from "@/components/landing/TestimonialSection";
+import { FAQSection } from "@/components/landing/FAQSection";
 import { CTAFooter } from "@/components/landing/CTAFooter";
 import { AuthModal } from "@/components/auth/AuthModal";
 
@@ -27,12 +31,16 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen w-full">
-      <main className="relative w-full overflow-x-hidden bg-background text-foreground">
+      <main className="relative w-full overflow-x-hidden bg-background text-foreground selection:bg-primary/20 selection:text-primary">
         <Navbar onLaunchApp={handleLaunchApp} />
         <HeroSection onLaunchApp={handleLaunchApp} />
+        <SocialProofSection />
+        <CollabSection />
         <DemoSection />
+        <DashboardPreview />
         <FeaturesSection />
-        <TechSection />
+        <TestimonialSection />
+        <FAQSection />
         <CTAFooter />
       </main>
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
