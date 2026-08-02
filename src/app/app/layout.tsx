@@ -11,9 +11,9 @@ import { GuestBanner } from "@/components/app/GuestBanner";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { 
-  Clipboard, 
-  ListTodo, 
+import {
+  Clipboard,
+  ListTodo,
   SunMoon,
   SearchIcon,
   LayoutDashboard

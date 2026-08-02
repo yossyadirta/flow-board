@@ -68,7 +68,7 @@ export const RecentActivitiesCard = ({
   }, []);
 
   return (
-    <Card className={cn("flex flex-col border-0 shadow-none bg-card p-0 gap-0 h-full overflow-hidden", className)}>
+    <Card className={cn("bg-card/80 backdrop-blur-xl border border-border/40 shadow-sm ring-1 ring-white/5 flex flex-col p-0 gap-0 h-full overflow-hidden transition-all hover:shadow-md", className)}>
       <CardHeader className="shrink-0 px-3 pt-3 border-border/40">
         <CardTitle className="text-sm md:text-base flex items-center text-foreground/90">
           Recent Activities

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Plus, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
+import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -115,11 +115,18 @@ export default function HomeDashboard() {
 
         <div className="flex-1 min-h-0 bg-secondary rounded-2xl overflow-hidden p-2">
 
-          <div className="flex flex-col gap-2 xl:hidden h-full overflow-y-auto pb-4">
-            <div className="h-72 shrink-0">
+          <motion.div
+            className="flex flex-col gap-2 xl:hidden h-full overflow-y-auto pb-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } }
+            }}
+          >
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="h-72 shrink-0">
               <TodayFocusCard tasks={mappedTasks} boards={boards} currentUserId={currentUserId} />
-            </div>
-            <div className="h-64 shrink-0">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="h-64 shrink-0">
               <TaskCompletionChart
                 tasks={mappedTasks}
                 totalTasks={totalTasks}
@@ -127,23 +134,28 @@ export default function HomeDashboard() {
                 inProgressTasks={inProgressTasks}
                 overdueTasks={overdueTasks}
               />
-            </div>
-            <div className="h-40 shrink-0">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="h-40 shrink-0">
               <TodayProgressCard tasks={mappedTasks} />
-            </div>
-            <div className="h-60 shrink-0">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="h-60 shrink-0">
               <BentoProjectsCard boards={boards} getBoardMetrics={getBoardMetrics} />
-            </div>
-            <div className="h-64 shrink-0">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="h-64 shrink-0">
               <ProductivityTrendCard tasks={mappedTasks} />
-            </div>
-            <div className="h-72 shrink-0">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="h-72 shrink-0">
               <RecentActivitiesCard recentTasks={recentTasks} />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div
+          <motion.div
             className="hidden xl:grid h-full gap-2"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.08 } }
+            }}
             style={{
               gridTemplateAreas: `
                 "focus chart  chart   chart ring"
@@ -154,16 +166,16 @@ export default function HomeDashboard() {
               gridTemplateRows: "2.5fr 1fr 1.5fr",
             }}
           >
-            <div style={{ gridArea: "focus" }} className="min-h-0">
+            <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "focus" }} className="min-h-0">
               <TodayFocusCard
                 tasks={mappedTasks}
                 boards={boards}
                 currentUserId={currentUserId}
               />
-            </div>
+            </motion.div>
 
             {/* Task Activity Chart — top center-right (wide) */}
-            <div style={{ gridArea: "chart" }} className="min-h-0">
+            <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "chart" }} className="min-h-0">
               <TaskCompletionChart
                 tasks={mappedTasks}
                 totalTasks={totalTasks}
@@ -171,24 +183,24 @@ export default function HomeDashboard() {
                 inProgressTasks={inProgressTasks}
                 overdueTasks={overdueTasks}
               />
-            </div>
+            </motion.div>
 
-            <div style={{ gridArea: "ring" }} className="min-h-0">
+            <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "ring" }} className="min-h-0">
               <TodayProgressCard tasks={mappedTasks} />
-            </div>
+            </motion.div>
 
-            <div style={{ gridArea: "proj" }} className="min-h-0">
+            <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "proj" }} className="min-h-0">
               <BentoProjectsCard boards={boards} getBoardMetrics={getBoardMetrics} />
-            </div>
+            </motion.div>
 
-            <div style={{ gridArea: "cal" }} className="min-h-0">
+            <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "cal" }} className="min-h-0">
               <ProductivityTrendCard tasks={mappedTasks} />
-            </div>
+            </motion.div>
 
-            <div style={{ gridArea: "act" }} className="min-h-0">
+            <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "act" }} className="min-h-0">
               <RecentActivitiesCard recentTasks={recentTasks} />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 

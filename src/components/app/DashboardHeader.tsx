@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Plus } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Task } from "@/types/task";
 import { cn } from "@/lib/utils";
@@ -18,16 +19,16 @@ export function DashboardHeader({ userName, tasks, onNewBoard, className }: Dash
     let overdue = 0;
     let dueToday = 0;
     let inProgress = 0;
-    
+
     const today = new Date();
-    today.setHours(0,0,0,0);
-    
+    today.setHours(0, 0, 0, 0);
+
     tasks.forEach(t => {
       if (t.status === "done") return;
       if (t.status === "in-progress") inProgress++;
       if (t.dueDate) {
         const d = new Date(t.dueDate);
-        d.setHours(0,0,0,0);
+        d.setHours(0, 0, 0, 0);
         if (d < today) overdue++;
         else if (d.getTime() === today.getTime()) dueToday++;
       }
@@ -41,23 +42,26 @@ export function DashboardHeader({ userName, tasks, onNewBoard, className }: Dash
   }, [tasks]);
 
   return (
-    <div className={cn("flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0 mb-1", className)}>
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className={cn("flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0 mb-1 px-1", className)}
+    >
       <div>
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
           Overview
         </h1>
-        
-        {/* Dynamic Status Subtitle */}
+
         <div className="flex items-center gap-2 mt-1.5">
-          {/* Subtle Status Dot (no animation) */}
           <div className="relative flex items-center justify-center">
-            {type === "alert" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>}
-            {type === "focus" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>}
-            {type === "active" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500"></span>}
-            {type === "chill" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>}
+            {type === "alert" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>}
+            {type === "focus" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>}
+            {type === "active" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>}
+            {type === "chill" && <span className="inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>}
           </div>
-          
-          <p className="text-sm text-muted-foreground">
+
+          <p className="text-sm text-muted-foreground font-medium">
             {subtitle}
           </p>
         </div>
@@ -66,12 +70,12 @@ export function DashboardHeader({ userName, tasks, onNewBoard, className }: Dash
       <Button
         data-onboarding="create-board-btn"
         size="sm"
-        className="shadow-sm hover:shadow-md transition-all rounded-full px-5 w-full sm:w-auto shrink-0 cursor-pointer"
+        className="shadow-sm hover:shadow-primary/25 hover:-translate-y-0.5 transition-all rounded-full px-5 w-full sm:w-auto shrink-0 cursor-pointer"
         onClick={onNewBoard}
       >
         <Plus className="h-4 w-4 mr-1.5" />
         New Board
       </Button>
-    </div>
+    </motion.div>
   );
 }

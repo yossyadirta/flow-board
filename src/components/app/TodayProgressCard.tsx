@@ -49,7 +49,7 @@ export function TodayProgressCard({ tasks, className }: Props) {
   else if (isAllDone) mainColor = "#10b981";
   return (
     <Card className={cn(
-      "border-0 shadow-none bg-card flex flex-col p-0 gap-0 h-full overflow-hidden transition-colors",
+      "bg-card/80 backdrop-blur-xl border border-border/40 shadow-sm ring-1 ring-white/5 flex flex-col p-0 gap-0 h-full overflow-hidden transition-all hover:shadow-md",
       isAllDone ? "bg-emerald-500/5" : "",
       className
     )}>
