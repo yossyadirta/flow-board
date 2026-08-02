@@ -136,9 +136,9 @@ export const DemoSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="max-w-[90vw] sm:max-w-full overflow-x-auto rounded-xl pb-4 sm:pb-0"
+          className="w-full max-w-full rounded-xl pb-4 sm:pb-0"
         >
-          <div className="min-w-[600px] sm:min-w-0">
+          <div className="w-full">
             <div className="rounded-xl border border-border/40 bg-card/80 p-1 shadow-2xl shadow-black/[0.08] dark:shadow-black/40 backdrop-blur-xl">
               <div className="rounded-lg border border-border/20 bg-card p-4">
                 <div className="mb-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between border-b border-border/20 pb-3">
@@ -235,7 +235,7 @@ function KanbanDemo({
   grouped: Record<string, (typeof DEMO_TASKS)[number][]>;
 }) {
   return (
-    <div className="flex sm:grid sm:grid-cols-3 gap-4 overflow-x-auto pb-2 sm:pb-0 h-[360px]">
+    <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 pb-2 sm:pb-0 sm:h-[360px]">
       {(
         [
           { status: "todo", label: "To Do" },

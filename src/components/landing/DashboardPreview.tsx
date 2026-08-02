@@ -217,22 +217,29 @@ export const DashboardPreview = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="max-w-3xl mx-auto"
+          className="max-w-3xl mx-auto px-4 sm:px-0"
         >
+          <style>{`
+            .bento-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+            }
+            @media (min-width: 768px) {
+              .bento-grid {
+                display: grid;
+                grid-template-areas: 
+                  "focus chart chart chart progress"
+                  "focus projects trend recent recent"
+                  "focus projects trend recent recent";
+                grid-template-columns: 2fr 2fr 2.5fr 1.5fr 2fr;
+                grid-template-rows: 180px 70px 100px;
+              }
+            }
+          `}</style>
           <div className="rounded-2xl border border-border/30 bg-background/40 backdrop-blur-3xl p-1 shadow-2xl ring-1 ring-white/10">
             <div className="rounded-xl bg-secondary p-2">
-              <div
-                className="grid gap-2"
-                style={{
-                  gridTemplateAreas: `
-                    "focus chart  chart   chart progress"
-                    "focus projects trend recent recent"
-                    "focus projects trend recent recent"
-                  `,
-                  gridTemplateColumns: "2fr 2fr 2.5fr 1.5fr 2fr",
-                  gridTemplateRows: "180px 70px 100px",
-                }}
-              >
+              <div className="bento-grid">
                 {BENTO_ITEMS.map((item, i) => {
                   const Icon = item.icon;
                   return (
