@@ -43,7 +43,7 @@ export function TasksKanbanView({ tasks, boards, onTaskClick, modalState, setMod
       "in-progress": [],
       "done": [],
     };
-    
+
     tasks.forEach(task => {
       if (cols[task.status]) {
         cols[task.status].push(task);
@@ -64,7 +64,6 @@ export function TasksKanbanView({ tasks, boards, onTaskClick, modalState, setMod
 
         return (
           <div key={statusKey} className="flex-shrink-0 w-80 flex flex-col max-h-full">
-            {/* Column Header */}
             <div className="flex items-center justify-between mb-4 px-1">
               <div className="flex items-center gap-2">
                 <StatusIcon className={cn("w-4 h-4", config.color)} />
@@ -75,7 +74,6 @@ export function TasksKanbanView({ tasks, boards, onTaskClick, modalState, setMod
               </div>
             </div>
 
-            {/* Column Content */}
             <ScrollArea className="flex-1 -mx-2 px-2">
               <div className="space-y-3 pb-4">
                 {columnTasks.map((task) => {

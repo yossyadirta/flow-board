@@ -14,6 +14,7 @@ import BoardView from "@/components/app/BoardView";
 import BoardModals from "@/components/app/BoardModals";
 import { useOnboardingContext } from "@/context/OnboardingContext";
 import { BoardPageSkeleton } from "@/components/app/skeletons/BoardSkeletons";
+import { motion } from "framer-motion";
 
 const Page = () => {
   const params = useParams<{ boardId: string }>();
@@ -64,7 +65,12 @@ const Page = () => {
   if (!currentBoard) return null;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden p-4 md:p-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="h-full flex flex-col overflow-hidden p-4 md:p-6"
+    >
       <BoardHeader
         derived={derived}
         mounted={mounted}
@@ -92,7 +98,7 @@ const Page = () => {
         dnd={dnd}
         derived={derived}
       />
-    </div>
+    </motion.div>
   );
 };
 

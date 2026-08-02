@@ -64,9 +64,8 @@ export function EditTaskModal({ open, onClose, data }: Props) {
         <DialogHeader className="px-6 py-4 border-b shrink-0">
           <DialogTitle className="text-xl">Task Details</DialogTitle>
         </DialogHeader>
-        
+
         <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-2">
-          {/* Left Column: Form */}
           <div className="p-6 overflow-y-auto max-h-[60vh] md:max-h-full border-r border-border/50">
             <TaskForm
               boardId={data?.boardId || ""}
@@ -83,7 +82,6 @@ export function EditTaskModal({ open, onClose, data }: Props) {
             />
           </div>
 
-          {/* Right Column: Comments & Activity */}
           <div className="p-6 pt-0 md:pt-6 bg-muted/10 overflow-hidden flex flex-col h-full min-h-[400px]">
             <TaskComments taskId={data?.id || ""} />
           </div>

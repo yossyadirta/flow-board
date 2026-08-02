@@ -63,7 +63,6 @@ export function TasksCalendarView({ tasks, boards, onTaskClick }: Props) {
 
   return (
     <div className="flex flex-col h-full bg-background rounded-xl border overflow-hidden">
-      {/* Calendar Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b bg-card">
         <h2 className="text-xl font-bold">{format(currentDate, dateFormat)}</h2>
         <div className="flex items-center gap-2">
@@ -81,9 +80,7 @@ export function TasksCalendarView({ tasks, boards, onTaskClick }: Props) {
         </div>
       </div>
 
-      {/* Calendar Grid */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Days Header */}
         <div className="grid grid-cols-7 border-b bg-muted/50">
           {weekDays.map((day) => (
             <div key={day} className="px-2 py-3 text-center text-sm font-semibold text-muted-foreground">

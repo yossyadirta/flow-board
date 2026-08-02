@@ -61,7 +61,6 @@ export const FeaturesSection = () => {
                 {FEATURES[0].description}
               </p>
 
-              {/* Decorative graphic */}
               <div className="mt-8 relative h-32 overflow-hidden rounded-xl bg-muted/30 border border-border/50">
                 <div className="absolute right-4 bottom-4 flex gap-2">
                   <motion.div

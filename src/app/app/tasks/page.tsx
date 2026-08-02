@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, Suspense } from "react";
+import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTasks } from "@/hooks/useTasks";
 import { useBoards } from "@/hooks/useBoards";
@@ -136,7 +137,12 @@ function MyTasksContent() {
 
   return (
     <TooltipProvider>
-      <div className="h-full flex flex-col overflow-hidden bg-background">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="h-full flex flex-col overflow-hidden bg-background"
+      >
         <div className="px-4 pt-4 md:px-6 md:pt-6 shrink-0">
           <h1 className="text-2xl font-bold tracking-tight">My Tasks</h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -270,7 +276,6 @@ function MyTasksContent() {
                       )}
                       onClick={() => setModalState({ type: "edit-task", data: task })}
                     >
-                      {/* Status Dropdown */}
                       <div onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger className={cn("flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:bg-background shadow-sm border outline-none", statusBg)}>
@@ -290,7 +295,6 @@ function MyTasksContent() {
                         </DropdownMenu>
                       </div>
 
-                      {/* Task Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium text-muted-foreground">
@@ -301,13 +305,11 @@ function MyTasksContent() {
                           </h4>
                         </div>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-                          {/* Board Badge */}
                           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground font-medium">
                             <span>{boardEmoji}</span>
                             <span className="truncate max-w-[120px]">{boardConfig.name}</span>
                           </div>
 
-                          {/* Due Date */}
                           {task.dueDate && (
                             <div className={cn("flex items-center gap-1",
                               task.status !== "done" && new Date(task.dueDate) < new Date() && "text-destructive font-medium"
@@ -317,7 +319,6 @@ function MyTasksContent() {
                             </div>
                           )}
 
-                          {/* Indicators */}
                           <div className="flex items-center gap-2">
                             {task.description && <AlignLeft size={12} />}
                             {task.cover && task.cover.type !== "none" && <ImageIcon size={12} />}
@@ -332,7 +333,6 @@ function MyTasksContent() {
           </ScrollArea>
         )}
 
-        {/* Reusing BoardModals for Edit Task */}
         {modalState.type === "edit-task" && (
           <BoardModals
             modalState={modalState}
@@ -342,7 +342,7 @@ function MyTasksContent() {
             derived={{ currentBoard: boards.find(b => b.id === (modalState as any).data?.boardId) } as any}
           />
         )}
-      </div>
+      </motion.div>
     </TooltipProvider>
   );
 }

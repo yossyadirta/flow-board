@@ -248,8 +248,8 @@ const MiniCalendar = () => {
             >
               <span
                 className={`text-[8px] flex items-center justify-center w-4 h-4 rounded-full ${isToday
-                    ? "bg-primary text-primary-foreground font-bold"
-                    : "text-muted-foreground"
+                  ? "bg-primary text-primary-foreground font-bold"
+                  : "text-muted-foreground"
                   }`}
               >
                 {day}
@@ -357,7 +357,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/[0.03] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 flex flex-col items-center text-center">
-        {/* Headline */}
         <h1 className="mt-8 mb-6 flex max-w-3xl flex-wrap items-center justify-center gap-x-2 sm:gap-x-3 gap-y-0 text-4xl leading-[1.1] font-semibold tracking-tighter md:text-6xl lg:text-7xl">
           {headlineWords.map((word, i) =>
             word === "\n" ? (
@@ -393,7 +392,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
           )}
         </h1>
 
-        {/* Subtitle */}
         <motion.p
           custom={0}
           variants={fadeUp}
@@ -404,7 +402,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
           {HERO_SUBTITLE}
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
           custom={1}
           variants={fadeUp}
@@ -433,7 +430,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
           </Button>
         </motion.div>
 
-        {/* Morphing App Mockup */}
         <motion.div
           custom={2}
           variants={fadeUp}
@@ -448,7 +444,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
             onMouseLeave={() => setIsPaused(false)}
           >
             <div className="rounded-lg border border-border/20 bg-card overflow-hidden">
-              {/* Browser chrome */}
               <div className="flex items-center gap-2 border-b border-border/20 bg-muted/20 px-3.5 py-2">
                 <div className="flex gap-1.5">
                   <div className="size-2 rounded-full bg-red-400/50" />
@@ -462,7 +457,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
                 </div>
               </div>
 
-              {/* Board header inside mockup */}
               <div className="bg-background px-4 pt-3 pb-0">
                 <div className="flex items-center justify-between mb-2.5">
                   <div className="flex items-center gap-2">
@@ -480,7 +474,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
                   </div>
                 </div>
 
-                {/* View tabs */}
                 <div className="flex items-center gap-0.5 border-b border-border/20 -mx-4 px-4">
                   {VIEW_TABS.map((tab) => {
                     const Icon = tab.icon;
@@ -490,8 +483,8 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
                         key={tab.key}
                         onClick={() => handleViewClick(tab.key)}
                         className={`relative flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-medium transition-colors cursor-pointer ${isActive
-                            ? "text-foreground"
-                            : "text-muted-foreground hover:text-foreground"
+                          ? "text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
                           }`}
                       >
                         <Icon
@@ -513,14 +506,13 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
                     );
                   })}
 
-                  {/* Auto-cycle progress indicator */}
                   <div className="ml-auto flex items-center gap-1">
                     {VIEW_TABS.map((tab) => (
                       <div
                         key={tab.key}
                         className={`w-1 h-1 rounded-full transition-colors duration-300 ${activeView === tab.key
-                            ? "bg-primary"
-                            : "bg-muted-foreground/20"
+                          ? "bg-primary"
+                          : "bg-muted-foreground/20"
                           }`}
                       />
                     ))}
@@ -528,7 +520,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
                 </div>
               </div>
 
-              {/* View content area */}
               <div className="p-3 bg-background" style={{ minHeight: 280 }}>
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -544,7 +535,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
             </div>
           </motion.div>
 
-          {/* Spotlight overlay */}
           <motion.div
             className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
             style={{
@@ -552,7 +542,6 @@ export const HeroSection = ({ onLaunchApp }: HeroSectionProps) => {
             }}
           />
 
-          {/* Glow effect behind mockup */}
           <div className="absolute -inset-4 bg-primary/[0.03] rounded-2xl blur-2xl -z-10 pointer-events-none" />
         </motion.div>
       </div>

@@ -174,7 +174,6 @@ export default function HomeDashboard() {
               />
             </motion.div>
 
-            {/* Task Activity Chart — top center-right (wide) */}
             <motion.div variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }} style={{ gridArea: "chart" }} className="min-h-0">
               <TaskCompletionChart
                 tasks={mappedTasks}

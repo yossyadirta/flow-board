@@ -10,10 +10,9 @@ import { Button } from "@/components/ui/button";
 export default function NotFoundPage() {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-zinc-950 overflow-hidden px-4">
-      {/* Background Gradients */}
       <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-300 dark:bg-purple-900/20 rounded-full filter blur-[100px] opacity-50 dark:opacity-30 mix-blend-multiply animate-blob" />
       <div className="absolute bottom-0 right-10 w-96 h-96 bg-blue-300 dark:bg-blue-900/20 rounded-full filter blur-[100px] opacity-50 dark:opacity-30 mix-blend-multiply animate-blob animation-delay-2000" />
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -42,11 +41,11 @@ export default function NotFoundPage() {
         <h1 className="text-7xl font-black tracking-tight text-foreground mb-4">
           404
         </h1>
-        
+
         <h2 className="text-2xl font-bold tracking-tight mb-2">
           Page not found
         </h2>
-        
+
         <p className="text-muted-foreground mb-8">
           Sorry, the page you are looking for doesn't exist or has been moved. Let's get you back on track.
         </p>
@@ -58,11 +57,11 @@ export default function NotFoundPage() {
               Back to Home
             </Link>
           </Button>
-          
-          <Button 
-            asChild 
-            variant="outline" 
-            className="w-full flex-1 gap-2 rounded-xl border-slate-300 dark:border-slate-800" 
+
+          <Button
+            asChild
+            variant="outline"
+            className="w-full flex-1 gap-2 rounded-xl border-slate-300 dark:border-slate-800"
             size="lg"
           >
             <Link href="/app">

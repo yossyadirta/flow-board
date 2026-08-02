@@ -160,7 +160,6 @@ export const CollabSection = () => {
                   </div>
                 </div>
 
-                {/* Fake Task Card 3 */}
                 <div className="absolute bottom-10 left-32 w-52 bg-card rounded-lg border shadow-sm p-3 opacity-60">
                   <div className="h-1.5 w-1/5 bg-emerald-500 rounded-full mb-3" />
                   <div className="text-xs font-semibold line-through text-muted-foreground mb-2">Update Pitch Deck</div>

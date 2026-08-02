@@ -26,7 +26,7 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
   const [bgColor, setBgColor] = useState("#3B82F6");
 
   const PREDEFINED_COLORS = [
-    "#EF4444", "#F97316", "#F59E0B", "#10B981", 
+    "#EF4444", "#F97316", "#F59E0B", "#10B981",
     "#3B82F6", "#6366F1", "#8B5CF6", "#EC4899"
   ];
 
@@ -47,7 +47,7 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
       } else {
         setName("");
       }
-      
+
       if (userProfile?.bg_color) {
         setBgColor(userProfile.bg_color);
       } else {
@@ -103,9 +103,8 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
 
         <form onSubmit={handleSave} className="p-6 space-y-6">
           <div className="flex flex-col items-center gap-4 pb-2">
-            {/* Read-only Avatar Display */}
             {userEmail ? (
-              <div 
+              <div
                 className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-3xl uppercase text-white shadow-sm transition-colors"
                 style={{ backgroundColor: bgColor }}
                 title={name || userEmail}
@@ -145,7 +144,7 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
                 </p>
               )}
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                 Avatar Color
@@ -156,9 +155,8 @@ export function SettingsModal({ open, onOpenChange, userEmail, userProfile }: Se
                     key={color}
                     type="button"
                     disabled={isLoading || !userEmail}
-                    className={`w-8 h-8 rounded-full border-2 transition-transform cursor-pointer ${
-                      bgColor === color ? "border-foreground scale-110" : "border-transparent hover:scale-110"
-                    } ${!userEmail ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-8 h-8 rounded-full border-2 transition-transform cursor-pointer ${bgColor === color ? "border-foreground scale-110" : "border-transparent hover:scale-110"
+                      } ${!userEmail ? "opacity-50 cursor-not-allowed" : ""}`}
                     style={{ backgroundColor: color }}
                     onClick={() => setBgColor(color)}
                   />

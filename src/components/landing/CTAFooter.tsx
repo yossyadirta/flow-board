@@ -79,7 +79,6 @@ export const CTAFooter = () => {
         </motion.div>
       </div>
 
-      {/* Footer */}
       <div className="mt-24 border-t border-border/20 pt-8 text-center text-xs text-muted-foreground">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Image src="/logo.svg" alt="Flowboard" width={16} height={16} />

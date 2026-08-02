@@ -93,8 +93,8 @@ export const DemoSection = () => {
                   key={tab.key}
                   onClick={() => handleSetView(tab.key)}
                   className={`relative flex items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-medium transition-colors cursor-pointer ${isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {isActive && (
@@ -132,7 +132,6 @@ export const DemoSection = () => {
           </AnimatePresence>
         </motion.div>
 
-        {/* Demo panel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -142,7 +141,6 @@ export const DemoSection = () => {
           <div className="min-w-[600px] sm:min-w-0">
             <div className="rounded-xl border border-border/40 bg-card/80 p-1 shadow-2xl shadow-black/[0.08] dark:shadow-black/40 backdrop-blur-xl">
               <div className="rounded-lg border border-border/20 bg-card p-4">
-                {/* Header bar */}
                 <div className="mb-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between border-b border-border/20 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🚀</span>
@@ -165,8 +163,8 @@ export const DemoSection = () => {
                         <span
                           key={f}
                           className={`rounded-lg border px-2.5 py-1 text-[10px] font-medium ${f === "All"
-                              ? "border-primary/30 bg-primary/10 text-primary"
-                              : "border-border/40 text-muted-foreground"
+                            ? "border-primary/30 bg-primary/10 text-primary"
+                            : "border-border/40 text-muted-foreground"
                             }`}
                         >
                           {f}
@@ -557,8 +555,8 @@ function CalendarDemo() {
               <div className="flex justify-between items-center mb-1">
                 <span
                   className={`text-xs inline-flex items-center justify-center w-6 h-6 rounded-full ${isToday
-                      ? "bg-primary text-primary-foreground font-bold shadow-sm"
-                      : "text-muted-foreground"
+                    ? "bg-primary text-primary-foreground font-bold shadow-sm"
+                    : "text-muted-foreground"
                     }`}
                 >
                   {day}

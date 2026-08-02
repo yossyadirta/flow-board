@@ -28,7 +28,6 @@ export function OnboardingTooltip({
       {...tooltipProps}
       className="relative bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-700/60 rounded-2xl shadow-2xl max-w-sm w-[340px] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
     >
-      {/* Progress bar */}
       <div className="h-1 bg-slate-100 dark:bg-zinc-800 w-full">
         <div
           className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500 ease-out rounded-r-full"
@@ -36,9 +35,7 @@ export function OnboardingTooltip({
         />
       </div>
 
-      {/* Content */}
       <div className="p-5 pb-4">
-        {/* Header row */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
@@ -59,13 +56,11 @@ export function OnboardingTooltip({
           </button>
         </div>
 
-        {/* Body */}
         <p className="text-sm text-muted-foreground leading-relaxed pl-[38px]">
           {step.content as string}
         </p>
       </div>
 
-      {/* Footer */}
       <div className="px-5 pb-4 flex items-center justify-between">
         <span className="text-[11px] font-medium text-muted-foreground/60 tracking-wide">
           {index + 1} / {totalSteps}
