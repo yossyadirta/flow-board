@@ -90,38 +90,37 @@ export const FEATURES: {
   title: string;
   description: string;
 }[] = [
-  {
-    icon: GripVertical,
-    title: "Drag & Drop",
-    description:
-      "Move tasks across columns with smooth, physics-based drag and drop. Powered by dnd-kit for a native-feel experience.",
-  },
-  {
-    icon: Users,
-    title: "Cloud Synchronized",
-    description:
-      "All your data is saved instantly to the cloud and synced across all your devices in real-time.",
-  },
-  {
-    icon: Moon,
-    title: "Dark Mode",
-    description:
-      "A meticulously crafted dark theme with oklch-powered color tokens. Every pixel considered, day and night.",
-  },
-  {
-    icon: Compass,
-    title: "Guided Onboarding",
-    description:
-      "New users are greeted with a polished step-by-step tour that highlights every feature without overwhelming.",
-  },
-];
+    {
+      icon: GripVertical,
+      title: "Drag & Drop",
+      description:
+        "Move tasks across columns with smooth, physics-based drag and drop. Powered by dnd-kit for a native-feel experience.",
+    },
+    {
+      icon: Users,
+      title: "Cloud Synchronized",
+      description:
+        "All your data is saved instantly to the cloud and synced across all your devices in real-time.",
+    },
+    {
+      icon: Moon,
+      title: "Dark Mode",
+      description:
+        "A meticulously crafted dark theme with oklch-powered color tokens. Every pixel considered, day and night.",
+    },
+    {
+      icon: Compass,
+      title: "Guided Onboarding",
+      description:
+        "New users are greeted with a polished step-by-step tour that highlights every feature without overwhelming.",
+    },
+  ];
 
 export const TECH_BADGES = [
-  { name: "Next.js 16", icon: "▲" },
-  { name: "React 19", icon: "⚛" },
+  { name: "Next.js", icon: "▲" },
   { name: "TypeScript", icon: "TS" },
-  { name: "Tailwind v4", icon: "🎨" },
-  { name: "shadcn/ui", icon: "◆" },
+  { name: "Tailwind", icon: "🎨" },
+  { name: "Shadcn", icon: "◆" },
   { name: "Framer Motion", icon: "◎" },
 ];
 
