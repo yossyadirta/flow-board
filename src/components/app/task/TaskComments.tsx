@@ -55,8 +55,8 @@ export function TaskComments({ taskId }: Props) {
           Activity & Comments
         </h3>
       </div>
-      
-      <ScrollArea className="flex-1 px-4" ref={scrollRef}>
+
+      <ScrollArea className="flex-1 min-h-0 px-4" ref={scrollRef}>
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -75,11 +75,11 @@ export function TaskComments({ taskId }: Props) {
                 .join("")
                 .substring(0, 2)
                 .toUpperCase() || "?";
-                
+
               return (
                 <div key={comment.id} className="flex gap-3 group">
                   <Avatar className="w-8 h-8 shrink-0 mt-0.5 shadow-sm border border-background">
-                    <AvatarFallback 
+                    <AvatarFallback
                       className="text-[10px] font-medium text-white"
                       style={{ backgroundColor: comment.author?.bg_color || "#94a3b8" }}
                     >
@@ -116,9 +116,9 @@ export function TaskComments({ taskId }: Props) {
             className="min-h-[44px] max-h-32 resize-none rounded-xl pr-12 pb-2 pt-3 shadow-inner bg-background focus-visible:ring-1"
             disabled={isAdding}
           />
-          <Button 
-            type="submit" 
-            size="icon" 
+          <Button
+            type="submit"
+            size="icon"
             disabled={!content.trim() || isAdding}
             className={cn(
               "absolute right-2 bottom-2 h-7 w-7 rounded-lg transition-all",

@@ -82,8 +82,7 @@ export function EditTaskModal({ open, onClose, data }: Props) {
             />
           </div>
 
-          <div className="p-6 pt-0 md:pt-6 bg-muted/10 overflow-hidden flex flex-col h-full min-h-[400px]">
-            <TaskComments taskId={data?.id || ""} />
+          <div className="p-6 pt-0 md:pt-6 bg-muted/10 overflow-hidden flex flex-col h-full min-h-0 md:min-h-[400px]">            <TaskComments taskId={data?.id || ""} />
           </div>
         </div>
 
